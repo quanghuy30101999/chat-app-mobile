@@ -2,7 +2,10 @@ import 'package:chat_app/models/chatMessageModel.dart';
 import 'package:flutter/material.dart';
 
 class ChatDetailPage extends StatefulWidget {
+  const ChatDetailPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ChatDetailPageState createState() => _ChatDetailPageState();
 }
 
@@ -47,9 +50,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
     ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
   ];
-  TextEditingController _textEditingController = TextEditingController();
-  FocusNode _focusNode = FocusNode();
-  ScrollController _scrollController = ScrollController();
+  final TextEditingController _textEditingController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   int selectedMessageIndex = -1;
 
   @override
@@ -62,7 +65,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _focusNode.dispose();
     super.dispose();
   }
@@ -70,7 +72,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void _scroll({double position = 0.0}) {
     _scrollController.animateTo(
         _scrollController.position.maxScrollExtent + position,
-        duration: Duration(microseconds: 300),
+        duration: const Duration(microseconds: 300),
         curve: Curves.bounceInOut);
   }
 
@@ -78,7 +80,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         index * 32.0, // Thay 100.0 bằng độ cao của mỗi mục tin nhắn
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
       setState(() {
@@ -89,7 +91,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    Size _media = MediaQuery.of(context).size;
+    Size media = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -156,8 +158,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             padding: EdgeInsets.only(top: pinMessage.isNotEmpty ? 70 : 0),
             child: SizedBox(
               height: pinMessage.isNotEmpty
-                  ? _media.height * 0.7
-                  : _media.height * 0.75,
+                  ? media.height * 0.7
+                  : media.height * 0.75,
               child: SingleChildScrollView(
                 controller: _scrollController,
                 physics: const ScrollPhysics(),
@@ -224,10 +226,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   child: SizedBox(
                     height: 65,
                     child: Padding(
-                      padding: EdgeInsets.only(left: 5, right: 5, top: 3),
+                      padding: const EdgeInsets.only(left: 5, right: 5, top: 3),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 236, 229, 229),
+                          color: const Color.fromARGB(255, 236, 229, 229),
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: Row(
@@ -248,7 +250,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                   padding: const EdgeInsets.only(left: 10),
                                   child: Text(
                                     pinMessage.last.messageContent,
-                                    style: TextStyle(fontSize: 20),
+                                    style: const TextStyle(fontSize: 20),
                                   ),
                                 ),
                               ],
@@ -257,7 +259,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                               padding: const EdgeInsets.only(right: 20),
                               child: Text(
                                 pinMessage.length > 1 ? "+1" : "1",
-                                style: TextStyle(fontSize: 20),
+                                style: const TextStyle(fontSize: 20),
                               ),
                             ),
                           ],
@@ -322,13 +324,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                         _textEditingController.clear();
                         _scroll(position: 60.0);
                       },
-                      child: Icon(
+                      backgroundColor: Colors.blue,
+                      elevation: 0,
+                      child: const Icon(
                         Icons.send,
                         color: Colors.white,
                         size: 18,
                       ),
-                      backgroundColor: Colors.blue,
-                      elevation: 0,
                     ),
                   ],
                 ),
