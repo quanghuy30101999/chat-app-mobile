@@ -1,18 +1,22 @@
+import 'package:chat_app/helpers/shared_preferences.dart';
+import 'package:chat_app/screens/home_page.dart';
 import 'package:chat_app/screens/login/components/body.dart';
 import 'package:chat_app/screens/login/components/header.dart';
 import 'package:flutter/material.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool isLogin = SharedPreferencesService.isLogin();
   @override
   Widget build(BuildContext context) {
+    if (isLogin) return const HomePage();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       body: Form(

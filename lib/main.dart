@@ -1,15 +1,18 @@
 import 'package:chat_app/helpers/shared_preferences.dart';
+import 'package:chat_app/helpers/token_manager.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/provider/loading_provider.dart';
 import 'package:chat_app/provider/login_provider.dart';
-import 'package:chat_app/screens/login/login.dart';
+import 'package:chat_app/screens/login/login_page.dart';
 import 'package:chat_app/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferencesService.init();
+  await TokenManager.getAccessToken();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -33,7 +36,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: LoadingWidget(
           key: key,
-          child: Login(key: key),
+          child: LoginPage(key: key),
         ),
       ),
     );

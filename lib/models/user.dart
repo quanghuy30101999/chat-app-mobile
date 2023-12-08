@@ -12,6 +12,8 @@ class User {
   final bool isOnline;
   @JsonKey(name: "is_admin", defaultValue: false)
   final bool isAdmin;
+  @JsonKey(name: "avatar_url")
+  final String? avatarUrl;
   @JsonKey(name: "created_at")
   final DateTime createdAt;
   @JsonKey(name: "updated_at")
@@ -23,6 +25,7 @@ class User {
       this.lastActive,
       required this.isOnline,
       required this.isAdmin,
+      this.avatarUrl,
       required this.createdAt,
       required this.updatedAt});
 
