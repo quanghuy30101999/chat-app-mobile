@@ -15,7 +15,7 @@ class TokenManager {
   }
 
   static Future<void> refreshAccessToken() async {
-    RefreshTokenApi.refreshToken(
+    await RefreshTokenApi.refreshToken(
         onSuccess: (token, refreshToken) {
           SharedPreferencesService.setRefreshToken(token, refreshToken);
         },

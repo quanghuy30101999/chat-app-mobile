@@ -3,6 +3,7 @@ import 'package:chat_app/helpers/token_manager.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/provider/loading_provider.dart';
 import 'package:chat_app/provider/login_provider.dart';
+import 'package:chat_app/provider/message_provider.dart';
 import 'package:chat_app/screens/login/login_page.dart';
 import 'package:chat_app/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<LoginProvider>(create: (_) => LoginProvider()),
         ChangeNotifierProvider<ConversationProVider>(
             create: (_) => ConversationProVider()),
+        ChangeNotifierProvider<MessageProvider>(
+            create: (_) => MessageProvider()),
       ],
       child: MaterialApp(
         title: 'Chat App',

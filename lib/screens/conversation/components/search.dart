@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class Search extends StatefulWidget {
   Function(bool) focus;
-  Search({super.key, required this.focus});
+  Function(String?) onChangeText;
+  Search({super.key, required this.focus, required this.onChangeText});
 
   @override
   State<Search> createState() => _SearchState();
@@ -41,6 +42,14 @@ class _SearchState extends State<Search> {
     super.dispose();
   }
 
+  void _handleOnTap() {
+    setState(() {
+      isFocus = false;
+    });
+    widget.focus(isFocus);
+    _textEditingController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -48,42 +57,40 @@ class _SearchState extends State<Search> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: isFocus
-                ? () {
-                    setState(() {
-                      isFocus = false;
-                    });
-                    widget.focus(isFocus);
-                    _textEditingController.clear();
-                  }
-                : () {
-                    _focusNode.requestFocus();
-                  },
+            onTap: isFocus ? _handleOnTap : () => _focusNode.requestFocus(),
             child: Icon(
               isFocus ? Icons.arrow_back : Icons.search,
               color: const Color.fromARGB(255, 152, 108, 108),
-              size: 30,
+              size: 25,
             ),
           ),
           const SizedBox(
             width: 10,
           ),
           Expanded(
-            child: TextField(
-              controller: _textEditingController,
-              focusNode: _focusNode,
-              decoration: InputDecoration(
-                hintText: "Search...",
-                hintStyle: TextStyle(color: Colors.grey.shade600),
-                filled: true,
-                fillColor: setColor ? Colors.grey.shade300 : Colors.white,
-                contentPadding:
-                    const EdgeInsets.fromLTRB(12.0, 25.0, 12.0, 12.0),
-                enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: const BorderSide(color: Colors.grey)),
+            child: SizedBox(
+              width: 350.0,
+              height: 40.0,
+              child: TextField(
+                controller: _textEditingController,
+                onChanged: (text) {
+                  widget.onChangeText(text);
+                },
+                focusNode: _focusNode,
+                style: const TextStyle(fontSize: 16.0),
+                cursorHeight: 20.0,
+                decoration: InputDecoration(
+                  hintText: "Search...",
+                  hintStyle: TextStyle(color: Colors.grey.shade600),
+                  filled: true,
+                  fillColor: setColor ? Colors.grey.shade300 : Colors.white,
+                  contentPadding: const EdgeInsets.only(top: 10, left: 12),
+                  enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(color: Colors.grey)),
+                ),
               ),
             ),
           ),

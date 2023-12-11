@@ -14,8 +14,8 @@ class LoginApi extends ApiService {
           await http.post(Uri.parse(baseUrl + endpoint), body: {"id": userId});
       if (response.statusCode < 400) {
         var data = json.decode(response.body)["data"];
-        SharedPreferencesService.saveUserData(
-            data['token'], data['refresh_token'], data['user'].toString());
+        await SharedPreferencesService.saveUserData(
+            data['token'], data['refresh_token'], jsonEncode(data['user']));
         onSuccess?.call();
       } else {
         onError?.call(json.decode(response.body)["error"]["message"]);

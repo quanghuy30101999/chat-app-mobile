@@ -26,11 +26,12 @@ class SharedPreferencesService {
     return refreshToken;
   }
 
-  static Future<User> readUserData() async {
-    User? user =
-        User.fromJson(json.decode(_preferences.getString('user') ?? ''));
-
-    return user;
+  static User? readUserData() {
+    String? string = _preferences.getString('user');
+    if (string != null) {
+      return User.fromJson(json.decode(string));
+    }
+    return null;
   }
 
   static Future<void> setRefreshToken(String token, String refreshToken) async {

@@ -1,7 +1,6 @@
-import 'package:chat_app/helpers/date_formats.dart';
 import 'package:chat_app/models/conversation.dart';
-import 'package:chat_app/models/user.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
+import 'package:chat_app/screens/conversation_detail/chat_detail_page.dart';
 import 'package:chat_app/screens/conversation/components/conversation_list.dart';
 import 'package:chat_app/screens/conversation/components/search.dart';
 import 'package:chat_app/screens/conversation/components/user_list.dart';
@@ -16,44 +15,6 @@ class ConversationPage extends StatefulWidget {
 }
 
 class _ConversationPageState extends State<ConversationPage> {
-  List<User> users = [
-    User(
-        id: 'id',
-        username: 'Trần Quang Huy',
-        isOnline: false,
-        isAdmin: false,
-        avatarUrl:
-            "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg",
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now()),
-    User(
-        id: 'id',
-        username: 'Trần Thị Phương Vy',
-        isOnline: false,
-        isAdmin: false,
-        avatarUrl:
-            "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg",
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now()),
-    User(
-        id: 'id',
-        username: 'Huỳnh Văn Tú',
-        isOnline: false,
-        isAdmin: false,
-        avatarUrl:
-            "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg",
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now()),
-    User(
-        id: 'id',
-        username: 'Trần Phương Nhi',
-        isOnline: false,
-        isAdmin: false,
-        avatarUrl:
-            "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg",
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now())
-  ];
   bool isFocus = false;
 
   @override
@@ -125,6 +86,12 @@ class _ConversationPageState extends State<ConversationPage> {
                 ),
               ),
               Search(
+                onChangeText: (text) {
+                  if (text != null) {
+                    Provider.of<ConversationProVider>(context, listen: false)
+                        .getUsers(text: text);
+                  }
+                },
                 focus: (value) {
                   if (!value) FocusScope.of(context).unfocus();
                   setState(() {
@@ -133,19 +100,8 @@ class _ConversationPageState extends State<ConversationPage> {
                 },
               ),
               isFocus
-                  ? ListView.builder(
-                      itemCount: users.length,
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.only(top: 16),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return UserList(
-                          user: users[index],
-                        );
-                      },
-                    )
-                  : Selector<ConversationProVider, List<Conversation>>(
-                      selector: (context, provider) => provider.conversations,
+                  ? Selector<ConversationProVider, List<Conversation>>(
+                      selector: (context, provider) => provider.users,
                       builder: (context, conversations, child) {
                         return ListView.builder(
                           itemCount: conversations.length,
@@ -153,17 +109,49 @@ class _ConversationPageState extends State<ConversationPage> {
                           padding: const EdgeInsets.only(top: 16),
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            return ConversationList(
-                              name: conversations[index].name ??
-                                  conversations[index].users[0].username,
-                              messageText:
-                                  conversations[index].lastMessage?.text ?? '',
-                              imageUrl:
-                                  "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg",
-                              time: DateFormats.formatTime(
-                                  conversations[index].createdAt),
-                              isMessageRead:
-                                  (index == 0 || index == 3) ? true : false,
+                            return InkWell(
+                              onTap: () {
+                                Future.delayed(
+                                    const Duration(milliseconds: 200), () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return ChatDetailPage(
+                                        conversation: conversations[index]);
+                                  }));
+                                });
+                              },
+                              child: UserList(
+                                user: conversations[index].users[0],
+                              ),
+                            );
+                          },
+                        );
+                      })
+                  : Selector<ConversationProVider, List<Conversation>>(
+                      selector: (context, provider) => provider.conversations
+                          .where((element) => element.lastMessage != null)
+                          .toList(),
+                      builder: (context, conversations, child) {
+                        return ListView.builder(
+                          itemCount: conversations.length,
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.only(top: 16),
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                Future.delayed(
+                                    const Duration(milliseconds: 200), () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return ChatDetailPage(
+                                        conversation: conversations[index]);
+                                  }));
+                                });
+                              },
+                              child: ConversationList(
+                                conversation: conversations[index],
+                              ),
                             );
                           },
                         );
