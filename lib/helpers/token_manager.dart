@@ -15,11 +15,11 @@ class TokenManager {
   }
 
   static Future<void> refreshAccessToken() async {
-    await RefreshTokenApi.refreshToken(
-        onSuccess: (token, refreshToken) {
-          SharedPreferencesService.setRefreshToken(token, refreshToken);
-        },
-        onError: (_) {});
+    await RefreshTokenApi.refreshToken(onSuccess: (token, refreshToken) {
+      SharedPreferencesService.setRefreshToken(token, refreshToken);
+    }, onError: (err) {
+      SharedPreferencesService.clearUserData();
+    });
   }
 
   static bool isTokenExpired(String token) {

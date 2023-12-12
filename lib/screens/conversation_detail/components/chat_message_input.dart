@@ -1,4 +1,6 @@
+import 'package:chat_app/helpers/event_bus.dart';
 import 'package:chat_app/models/conversation.dart';
+import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/provider/message_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +8,10 @@ import 'package:provider/provider.dart';
 // ignore: must_be_immutable
 class ChatMessageInput extends StatefulWidget {
   Conversation conversation;
-  ChatMessageInput({super.key, required this.conversation});
+  ChatMessageInput({
+    super.key,
+    required this.conversation,
+  });
 
   @override
   State<ChatMessageInput> createState() => _ChatMessageInputState();
@@ -29,6 +34,7 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
       try {
         await sendMessageToProvider(messageText);
         clearTextFieldAndDisableButton();
+        EventBus().sendEvent('newMessage');
       } catch (e) {
         // Xử lý lỗi khi gửi tin nhắn
       }
@@ -36,13 +42,15 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
   }
 
   Future<void> sendMessageToProvider(String messageText) async {
-    await Provider.of<MessageProvider>(context, listen: false).postMessage(
-      conversationId: widget.conversation.id,
-      text: messageText,
-      onSuccess: () {
-        clearTextFieldAndDisableButton();
-      },
-    );
+    await context.read<MessageProvider>().postMessage(
+        conversationId: widget.conversation.id,
+        text: messageText,
+        onSuccess: (message) {
+          Provider.of<ConversationProVider>(context, listen: false)
+              .setLastMessage(
+                  conversation: widget.conversation, message: message);
+          clearTextFieldAndDisableButton();
+        });
   }
 
   void clearTextFieldAndDisableButton() {

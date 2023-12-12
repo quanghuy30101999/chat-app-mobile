@@ -34,21 +34,25 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        appBar: ConversationAppBar(
-          conversation: widget.conversation,
-        ),
-        body: Column(
-          children: [
-            const Expanded(child: ChatMessagesListViewBuilder()),
-            ChatMessageInput(conversation: widget.conversation)
-          ],
-        ),
-      ),
-    );
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            appBar: ConversationAppBar(
+              conversation: widget.conversation,
+            ),
+            body: Consumer<MessageProvider>(
+              builder: (context, myProvider, child) {
+                return Column(children: [
+                  Expanded(
+                      child: ChatMessagesListViewBuilder(
+                          messages: myProvider.messages)),
+                  ChatMessageInput(
+                    conversation: widget.conversation,
+                  )
+                ]);
+              },
+            )));
   }
 }

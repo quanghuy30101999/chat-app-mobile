@@ -1,5 +1,6 @@
 import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/conversation.dart';
+import 'package:chat_app/models/message.dart';
 import 'package:flutter/material.dart';
 import '../../../helpers/date_formats.dart';
 
@@ -13,6 +14,14 @@ class ConversationList extends StatefulWidget {
 }
 
 class _ConversationListState extends State<ConversationList> {
+  late List<Message> messages;
+
+  @override
+  void initState() {
+    messages = widget.conversation.messages;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,9 +56,9 @@ class _ConversationListState extends State<ConversationList> {
                         ),
                         Text(
                           SharedPreferencesService.readUserData()?.id ==
-                                  widget.conversation.lastMessage?.userId
-                              ? "Bạn: ${widget.conversation.lastMessage?.text ?? ''}"
-                              : widget.conversation.lastMessage?.text ?? '',
+                                  messages[messages.length - 1].userId
+                              ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
+                              : messages[messages.length - 1].text ?? '',
                           style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey.shade600,
@@ -67,12 +76,8 @@ class _ConversationListState extends State<ConversationList> {
             ),
           ),
           Text(
-            DateFormats.formatTime(widget.conversation.lastMessage!.createdAt),
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight:
-                    // widget.isMessageRead ? FontWeight.bold :
-                    FontWeight.normal),
+            DateFormats.formatTime(messages[messages.length - 1].createdAt),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
           ),
         ],
       ),

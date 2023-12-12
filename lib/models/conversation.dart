@@ -14,8 +14,8 @@ class Conversation {
   final DateTime updatedAt;
   @JsonKey(name: 'users', defaultValue: [])
   final List<User> users;
-  @JsonKey(name: 'last_message')
-  final Message? lastMessage;
+  @JsonKey(name: 'messages')
+  List<Message> messages;
 
   Conversation(
       {required this.id,
@@ -23,7 +23,7 @@ class Conversation {
       required this.createdAt,
       required this.updatedAt,
       required this.users,
-      this.lastMessage});
+      required this.messages});
 
   factory Conversation.fromJson(Map<String, dynamic> json) =>
       _$ConversationFromJson(json);

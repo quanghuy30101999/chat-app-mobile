@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:chat_app/helpers/event_bus.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/screens/conversation_detail/chat_detail_page.dart';
@@ -16,10 +19,12 @@ class ConversationPage extends StatefulWidget {
 
 class _ConversationPageState extends State<ConversationPage> {
   bool isFocus = false;
+  late StreamSubscription<String> _subscription;
 
   @override
   void initState() {
     super.initState();
+    _subscription = EventBus().stream.listen((event) {});
     loadData();
   }
 
@@ -29,6 +34,12 @@ class _ConversationPageState extends State<ConversationPage> {
           .getConversations();
       // ignore: empty_catches
     } catch (error) {}
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -127,13 +138,10 @@ class _ConversationPageState extends State<ConversationPage> {
                           },
                         );
                       })
-                  : Selector<ConversationProVider, List<Conversation>>(
-                      selector: (context, provider) => provider.conversations
-                          .where((element) => element.lastMessage != null)
-                          .toList(),
-                      builder: (context, conversations, child) {
+                  : Consumer<ConversationProVider>(
+                      builder: (context, myModel, child) {
                         return ListView.builder(
-                          itemCount: conversations.length,
+                          itemCount: myModel.conversations.length,
                           shrinkWrap: true,
                           padding: const EdgeInsets.only(top: 16),
                           physics: const NeverScrollableScrollPhysics(),
@@ -145,18 +153,49 @@ class _ConversationPageState extends State<ConversationPage> {
                                   Navigator.push(context,
                                       MaterialPageRoute(builder: (context) {
                                     return ChatDetailPage(
-                                        conversation: conversations[index]);
+                                        conversation:
+                                            myModel.conversations[index]);
                                   }));
                                 });
                               },
                               child: ConversationList(
-                                conversation: conversations[index],
+                                conversation: myModel.conversations[index],
                               ),
                             );
                           },
                         );
                       },
-                    ),
+                    )
+              // Selector<ConversationProVider, List<Conversation>>(
+              //     selector: (context, provider) => provider.conversations
+              //         .where((element) => element.messages.isNotEmpty)
+              //         .toList(),
+              //     builder: (context, conversations, child) {
+              //       return ListView.builder(
+              //         itemCount: conversations.length,
+              //         shrinkWrap: true,
+              //         padding: const EdgeInsets.only(top: 16),
+              //         physics: const NeverScrollableScrollPhysics(),
+              //         itemBuilder: (context, index) {
+              //           return InkWell(
+              //             onTap: () {
+              //               Future.delayed(
+              //                   const Duration(milliseconds: 200), () {
+              //                 Navigator.push(context,
+              //                     MaterialPageRoute(builder: (context) {
+              //                   return ChatDetailPage(
+              //                       conversation: conversations[index]);
+              //                 }));
+              //               });
+              //             },
+              //             child: ConversationList(
+              //               conversation: conversations[index],
+              //             ),
+              //           );
+              //         },
+              //       );
+              //     },
+              //   ),
             ],
           ),
         ),

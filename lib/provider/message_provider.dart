@@ -23,7 +23,7 @@ class MessageProvider with ChangeNotifier {
   Future<void> postMessage(
       {required String conversationId,
       required String text,
-      Function? onSuccess}) async {
+      Function(Message message)? onSuccess}) async {
     MessageApi messageApi = MessageApi();
     await messageApi.postMessage(
         text: text,
@@ -31,7 +31,7 @@ class MessageProvider with ChangeNotifier {
         onSuccess: (message) {
           _messages.add(message);
           notifyListeners();
-          onSuccess?.call();
+          onSuccess?.call(message);
         },
         onError: (error) {
           print(error);
