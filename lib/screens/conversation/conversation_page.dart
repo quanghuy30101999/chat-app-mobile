@@ -1,7 +1,8 @@
 import 'dart:async';
-
-import 'package:chat_app/helpers/event_bus.dart';
+import 'package:chat_app/helpers/shared_preferences.dart';
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
+import 'package:chat_app/models/message.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/screens/conversation_detail/chat_detail_page.dart';
 import 'package:chat_app/screens/conversation/components/conversation_list.dart';
@@ -19,26 +20,34 @@ class ConversationPage extends StatefulWidget {
 
 class _ConversationPageState extends State<ConversationPage> {
   bool isFocus = false;
-  late StreamSubscription<String> _subscription;
-
   @override
   void initState() {
     super.initState();
-    _subscription = EventBus().stream.listen((event) {});
     loadData();
+    SocketManager().listenToEvent('receive_message', (data) {
+      Message message = Message.fromJson(data);
+      Provider.of<ConversationProVider>(context, listen: false).setLastMessage(
+          conversationId: message.conversationId, message: message);
+    });
   }
 
   Future<void> loadData() async {
     try {
       await Provider.of<ConversationProVider>(context, listen: false)
-          .getConversations();
+          .getConversations(onSuccess: (conversations) {
+        List<String> convesationIds = conversations.map((e) => e.id).toList();
+        Map<String, dynamic> data = {
+          'conversationIds': convesationIds,
+          'userId': SharedPreferencesService.readUserData()?.id
+        };
+        SocketManager().emitEvent('join_room', data);
+      });
       // ignore: empty_catches
     } catch (error) {}
   }
 
   @override
   void dispose() {
-    _subscription.cancel();
     super.dispose();
   }
 
@@ -166,36 +175,6 @@ class _ConversationPageState extends State<ConversationPage> {
                         );
                       },
                     )
-              // Selector<ConversationProVider, List<Conversation>>(
-              //     selector: (context, provider) => provider.conversations
-              //         .where((element) => element.messages.isNotEmpty)
-              //         .toList(),
-              //     builder: (context, conversations, child) {
-              //       return ListView.builder(
-              //         itemCount: conversations.length,
-              //         shrinkWrap: true,
-              //         padding: const EdgeInsets.only(top: 16),
-              //         physics: const NeverScrollableScrollPhysics(),
-              //         itemBuilder: (context, index) {
-              //           return InkWell(
-              //             onTap: () {
-              //               Future.delayed(
-              //                   const Duration(milliseconds: 200), () {
-              //                 Navigator.push(context,
-              //                     MaterialPageRoute(builder: (context) {
-              //                   return ChatDetailPage(
-              //                       conversation: conversations[index]);
-              //                 }));
-              //               });
-              //             },
-              //             child: ConversationList(
-              //               conversation: conversations[index],
-              //             ),
-              //           );
-              //         },
-              //       );
-              //     },
-              //   ),
             ],
           ),
         ),

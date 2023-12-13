@@ -1,3 +1,4 @@
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/message_provider.dart';
 import 'package:chat_app/screens/conversation_detail/app_bar/conversation_app_bar.dart';
@@ -17,18 +18,24 @@ class ChatDetailPage extends StatefulWidget {
 }
 
 class _ChatDetailPageState extends State<ChatDetailPage> {
+  bool _isPageOpened = false;
+
   @override
   void initState() {
     super.initState();
-    loadMessages();
+    _isPageOpened = true;
+    SocketManager().listenToEvent('receive_message_user', (_) {
+      if (_isPageOpened) {
+        Provider.of<MessageProvider>(context, listen: false)
+            .updateDataFromSocket();
+      }
+    });
   }
 
-  Future<void> loadMessages() async {
-    try {
-      await Provider.of<MessageProvider>(context, listen: false)
-          .getMessage(conversationId: widget.conversation.id);
-      // ignore: empty_catches
-    } catch (error) {}
+  @override
+  void dispose() {
+    _isPageOpened = false;
+    super.dispose();
   }
 
   @override
@@ -44,14 +51,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             ),
             body: Consumer<MessageProvider>(
               builder: (context, myProvider, child) {
-                return Column(children: [
-                  Expanded(
-                      child: ChatMessagesListViewBuilder(
-                          messages: myProvider.messages)),
-                  ChatMessageInput(
-                    conversation: widget.conversation,
-                  )
-                ]);
+                if (_isPageOpened) {
+                  return Column(children: [
+                    Expanded(
+                        child: ChatMessagesListViewBuilder(
+                            messages: widget.conversation.messages)),
+                    ChatMessageInput(
+                      conversation: widget.conversation,
+                    )
+                  ]);
+                }
+                return Container();
               },
             )));
   }

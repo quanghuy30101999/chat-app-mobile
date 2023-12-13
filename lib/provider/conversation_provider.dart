@@ -13,7 +13,8 @@ class ConversationProVider with ChangeNotifier {
   List<Conversation> get conversationsAll => _conversationsAll;
 
   Future<void> getConversations(
-      {Function? onSuccess, Function(String? message)? onError}) async {
+      {Function(List<Conversation>)? onSuccess,
+      Function(String? message)? onError}) async {
     ConversationApi conversationApi = ConversationApi();
     await conversationApi.getConversations(
         onSuccess: (conversations) {
@@ -21,6 +22,8 @@ class ConversationProVider with ChangeNotifier {
           _conversations = _conversationsAll
               .where((element) => element.messages.isNotEmpty)
               .toList();
+
+          onSuccess?.call(_conversationsAll);
           sortConversations();
           notifyListeners();
         },
@@ -37,9 +40,9 @@ class ConversationProVider with ChangeNotifier {
   }
 
   void setLastMessage(
-      {required Conversation conversation, required Message message}) {
+      {required String conversationId, required Message message}) {
     _conversations
-        .firstWhere((e) => e.id == conversation.id)
+        .firstWhere((e) => e.id == conversationId)
         .messages
         .add(message);
     sortConversations();

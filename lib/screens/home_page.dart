@@ -1,11 +1,13 @@
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/screens/conversation/conversation_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    SocketManager().connectToServer();
     return Scaffold(
       body: const ConversationPage(),
       bottomNavigationBar: BottomNavigationBar(

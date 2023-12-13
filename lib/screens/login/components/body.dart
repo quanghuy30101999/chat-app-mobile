@@ -64,8 +64,7 @@ class _BodyState extends State<Body> {
                         loadingProvider.setLoading(false);
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomePage()),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                         );
                       },
                       onError: (message) {

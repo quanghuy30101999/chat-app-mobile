@@ -14,16 +14,9 @@ class ConversationList extends StatefulWidget {
 }
 
 class _ConversationListState extends State<ConversationList> {
-  late List<Message> messages;
-
-  @override
-  void initState() {
-    messages = widget.conversation.messages;
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
+    List<Message> messages = widget.conversation.messages;
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
       child: Row(
