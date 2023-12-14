@@ -1,6 +1,7 @@
 import 'package:chat_app/api/conversationApi/conversation_api.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
+import 'package:chat_app/models/user.dart';
 import 'package:flutter/foundation.dart';
 
 class ConversationProVider with ChangeNotifier {
@@ -47,6 +48,40 @@ class ConversationProVider with ChangeNotifier {
         .add(message);
     sortConversations();
     notifyListeners();
+  }
+
+  void updateStatusOnline(
+      {required List<String> conversationIds, required String userId}) {
+    for (var conversation in _conversations) {
+      if (conversationIds.contains(conversation.id)) {
+        User? user;
+        try {
+          user = conversation.users.firstWhere((user) => user.id == userId);
+        } catch (e) {
+          user = null;
+        }
+        if (user != null) user.isOnline = true;
+      }
+    }
+    notifyListeners();
+  }
+
+  void updateUserOffline(String conversationId, User user) {
+    int index =
+        _conversations.indexWhere((element) => element.id == conversationId);
+    if (index != -1) {
+      int indexUser = _conversations[index]
+          .users
+          .indexWhere((element) => element.id == user.id);
+      if (indexUser != -1) {
+        _conversations[index].users[indexUser] = user;
+        notifyListeners();
+      } else {
+        print('User not found in conversation users list');
+      }
+    } else {
+      print('Conversation not found');
+    }
   }
 
   void getUsers({String? text}) {

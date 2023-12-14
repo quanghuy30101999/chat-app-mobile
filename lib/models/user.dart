@@ -9,7 +9,7 @@ class User {
   @JsonKey(name: "last_active")
   final DateTime? lastActive;
   @JsonKey(name: "is_online", defaultValue: false)
-  final bool isOnline;
+  bool isOnline;
   @JsonKey(name: "is_admin", defaultValue: false)
   final bool isAdmin;
   @JsonKey(name: "avatar_url")

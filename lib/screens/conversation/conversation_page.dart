@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
@@ -11,8 +10,12 @@ import 'package:chat_app/screens/conversation/components/user_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/user.dart';
+
+// ignore: must_be_immutable
 class ConversationPage extends StatefulWidget {
-  const ConversationPage({super.key});
+  Function onSuccess;
+  ConversationPage({super.key, required this.onSuccess});
 
   @override
   State<ConversationPage> createState() => _ConversationPageState();
@@ -29,18 +32,26 @@ class _ConversationPageState extends State<ConversationPage> {
       Provider.of<ConversationProVider>(context, listen: false).setLastMessage(
           conversationId: message.conversationId, message: message);
     });
+
+    SocketManager().listenToEvent('update_online_status', (data) {
+      Provider.of<ConversationProVider>(context, listen: false)
+          .updateStatusOnline(
+              conversationIds: data['conversationIds'].cast<String>(),
+              userId: data['userId']);
+    });
+
+    SocketManager().listenToEvent('user_disconnect', (data) {
+      Provider.of<ConversationProVider>(context, listen: false)
+          .updateUserOffline(
+              data['conversationId'], User.fromJson(data['user']));
+    });
   }
 
   Future<void> loadData() async {
     try {
       await Provider.of<ConversationProVider>(context, listen: false)
           .getConversations(onSuccess: (conversations) {
-        List<String> convesationIds = conversations.map((e) => e.id).toList();
-        Map<String, dynamic> data = {
-          'conversationIds': convesationIds,
-          'userId': SharedPreferencesService.readUserData()?.id
-        };
-        SocketManager().emitEvent('join_room', data);
+        widget.onSuccess.call();
       });
       // ignore: empty_catches
     } catch (error) {}

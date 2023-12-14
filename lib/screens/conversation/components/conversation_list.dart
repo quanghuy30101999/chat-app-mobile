@@ -1,6 +1,7 @@
 import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
+import 'package:chat_app/widgets/avatar.dart';
 import 'package:flutter/material.dart';
 import '../../../helpers/date_formats.dart';
 
@@ -24,12 +25,7 @@ class _ConversationListState extends State<ConversationList> {
           Expanded(
             child: Row(
               children: <Widget>[
-                CircleAvatar(
-                  backgroundImage: NetworkImage(widget
-                          .conversation.users[0].avatarUrl ??
-                      "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg"),
-                  maxRadius: 30,
-                ),
+                Avatar(user: widget.conversation.users[0], radius: 30),
                 const SizedBox(
                   width: 16,
                 ),

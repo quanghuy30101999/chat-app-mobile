@@ -32,6 +32,20 @@ class UserInfoDisplay extends StatelessWidget {
     return "Hoạt động $timeDifferenceText trước";
   }
 
+  Widget showStatus(bool isOnline) {
+    if (isOnline) {
+      return Text(
+        status(user.isOnline),
+        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+      );
+    }
+    if (user.lastActive == null) return Container();
+    return Text(
+      status(user.isOnline),
+      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -45,12 +59,7 @@ class UserInfoDisplay extends StatelessWidget {
         const SizedBox(
           height: 6,
         ),
-        user.lastActive != null
-            ? Text(
-                status(user.isOnline),
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-              )
-            : Container(),
+        showStatus(user.isOnline),
       ],
     );
   }
