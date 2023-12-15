@@ -21,7 +21,8 @@ class ConversationProVider with ChangeNotifier {
         onSuccess: (conversations) {
           _conversationsAll = conversations;
           _conversations = _conversationsAll
-              .where((element) => element.messages.isNotEmpty)
+              .where((element) =>
+                  element.messages.isNotEmpty && element.isGroup() == false)
               .toList();
 
           onSuccess?.call(_conversationsAll);
@@ -40,8 +41,10 @@ class ConversationProVider with ChangeNotifier {
     return conversation.messages[conversation.messages.length - 1];
   }
 
-  void setLastMessage(
-      {required String conversationId, required Message message}) {
+  void setLastMessage({
+    required String conversationId,
+    required Message message,
+  }) {
     try {
       _conversations
           .firstWhere((e) => e.id == conversationId)

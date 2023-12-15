@@ -2,6 +2,7 @@ import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
+import 'package:chat_app/screens/channels/channels_page.dart';
 import 'package:chat_app/screens/conversation/conversation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +15,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  int navIndex = 0;
+  late List<Widget> selectedPage;
+
   @override
   void initState() {
+    selectedPage = [
+      ConversationPage(
+        onSuccess: createRoom,
+      ),
+      const ChannelsPage(),
+      const ChannelsPage()
+    ];
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     connect();
@@ -50,7 +61,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     SocketManager().connectToServer();
   }
 
-  void createRoom(List<Conversation> conversations) async {
+  void createRoom(List<Conversation> conversations) {
     if (conversations.isNotEmpty) {
       List<String> convesationIds = conversations.map((e) => e.id).toList();
       Map<String, dynamic> data = {
@@ -64,10 +75,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ConversationPage(
-        onSuccess: createRoom,
+      body: IndexedStack(
+        index: navIndex,
+        children: selectedPage,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          setState(() {
+            navIndex = index;
+          });
+        },
+        currentIndex: navIndex,
         selectedItemColor: Colors.red,
         unselectedItemColor: Colors.grey.shade600,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),

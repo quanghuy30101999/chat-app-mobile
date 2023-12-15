@@ -29,4 +29,8 @@ class Conversation {
       _$ConversationFromJson(json);
 
   Map<String, dynamic> toJson() => _$ConversationToJson(this);
+
+  bool isGroup() {
+    return users.length > 1;
+  }
 }
