@@ -14,7 +14,7 @@ import '../../models/user.dart';
 
 // ignore: must_be_immutable
 class ConversationPage extends StatefulWidget {
-  Function onSuccess;
+  Function(List<Conversation>) onSuccess;
   ConversationPage({super.key, required this.onSuccess});
 
   @override
@@ -51,7 +51,7 @@ class _ConversationPageState extends State<ConversationPage> {
     try {
       await Provider.of<ConversationProVider>(context, listen: false)
           .getConversations(onSuccess: (conversations) {
-        widget.onSuccess.call();
+        widget.onSuccess.call(conversations);
       });
       // ignore: empty_catches
     } catch (error) {}

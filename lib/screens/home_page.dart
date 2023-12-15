@@ -1,5 +1,6 @@
 import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/helpers/socket_manager.dart';
+import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/screens/conversation/conversation_page.dart';
 import 'package:flutter/material.dart';
@@ -49,9 +50,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     SocketManager().connectToServer();
   }
 
-  void createRoom() async {
-    var conversations =
-        Provider.of<ConversationProVider>(context, listen: false).conversations;
+  void createRoom(List<Conversation> conversations) async {
     if (conversations.isNotEmpty) {
       List<String> convesationIds = conversations.map((e) => e.id).toList();
       Map<String, dynamic> data = {

@@ -42,10 +42,21 @@ class ConversationProVider with ChangeNotifier {
 
   void setLastMessage(
       {required String conversationId, required Message message}) {
-    _conversations
-        .firstWhere((e) => e.id == conversationId)
-        .messages
-        .add(message);
+    try {
+      _conversations
+          .firstWhere((e) => e.id == conversationId)
+          .messages
+          .add(message);
+    } catch (e) {
+      try {
+        Conversation? element =
+            _conversationsAll.firstWhere((e) => e.id == conversationId);
+        element.messages.add(message);
+        _conversations.add(element);
+      } catch (e) {
+        print(e);
+      }
+    }
     sortConversations();
     notifyListeners();
   }

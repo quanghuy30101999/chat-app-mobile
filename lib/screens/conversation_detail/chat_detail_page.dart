@@ -48,6 +48,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             resizeToAvoidBottomInset: true,
             appBar: ConversationAppBar(
               conversation: widget.conversation,
+              isPageOpened: _isPageOpened,
             ),
             body: Consumer<MessageProvider>(
               builder: (context, myProvider, child) {

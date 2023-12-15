@@ -1,3 +1,4 @@
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/screens/conversation_detail/app_bar/components/avatar.dart';
 import 'package:chat_app/screens/conversation_detail/app_bar/components/user_info_display.dart';
@@ -6,8 +7,10 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class ConversationAppBar extends StatefulWidget implements PreferredSizeWidget {
-  ConversationAppBar({super.key, required this.conversation});
+  ConversationAppBar(
+      {super.key, required this.conversation, this.isPageOpened});
   Conversation conversation;
+  bool? isPageOpened;
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
@@ -16,6 +19,22 @@ class ConversationAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _ConversationAppBarState extends State<ConversationAppBar> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    SocketManager().listenToEvent('update_online_status', (data) {
+      if (mounted && (widget.isPageOpened ?? false)) {
+        setState(() {});
+      }
+    });
+    SocketManager().listenToEvent('user_disconnect', (data) {
+      if (mounted && (widget.isPageOpened ?? false)) {
+        setState(() {});
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
