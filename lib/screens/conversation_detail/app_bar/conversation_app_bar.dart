@@ -1,5 +1,6 @@
 import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
+import 'package:chat_app/screens/channels/users_info_display.dart';
 import 'package:chat_app/screens/conversation_detail/app_bar/components/avatar.dart';
 import 'package:chat_app/screens/conversation_detail/app_bar/components/user_info_display.dart';
 import 'package:chat_app/widgets/icon_arrow_back.dart';
@@ -21,7 +22,6 @@ class ConversationAppBar extends StatefulWidget implements PreferredSizeWidget {
 class _ConversationAppBarState extends State<ConversationAppBar> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     SocketManager().listenToEvent('update_online_status', (data) {
       if (mounted && (widget.isPageOpened ?? false)) {
@@ -55,9 +55,11 @@ class _ConversationAppBarState extends State<ConversationAppBar> {
                 width: 12,
               ),
               Expanded(
-                  child: UserInfoDisplay(
-                user: widget.conversation.users[0],
-              )),
+                  child: !widget.conversation.isGroup()
+                      ? UserInfoDisplay(
+                          user: widget.conversation.users[0],
+                        )
+                      : UsersInfoDisplay(users: widget.conversation.users)),
               const Icon(
                 Icons.settings,
                 color: Colors.black54,

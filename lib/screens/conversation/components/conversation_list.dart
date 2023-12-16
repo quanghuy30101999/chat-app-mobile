@@ -36,26 +36,26 @@ class _ConversationListState extends State<ConversationList> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          widget.conversation.name ??
-                              widget.conversation.users[0].username,
+                          widget.conversation.isGroup()
+                              ? showNameGroup()
+                              : widget.conversation.name ??
+                                  widget.conversation.users[0].username,
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(
                           height: 6,
                         ),
                         Text(
-                          SharedPreferencesService.readUserData()?.id ==
-                                  messages[messages.length - 1].userId
-                              ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
-                              : messages[messages.length - 1].text ?? '',
+                          widget.conversation.isGroup()
+                              ? showLastMessageGroup(messages)
+                              : SharedPreferencesService.readUserData()?.id ==
+                                      messages[messages.length - 1].userId
+                                  ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
+                                  : messages[messages.length - 1].text ?? '',
                           style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey.shade600,
-                              fontWeight:
-                                  // widget.isMessageRead
-                                  // ? FontWeight.bold
-                                  // :
-                                  FontWeight.normal),
+                              fontWeight: FontWeight.normal),
                         ),
                       ],
                     ),
@@ -71,5 +71,20 @@ class _ConversationListState extends State<ConversationList> {
         ],
       ),
     );
+  }
+
+  String showLastMessageGroup(List<Message> messages) {
+    return SharedPreferencesService.readUserData()?.id ==
+            messages[messages.length - 1].userId
+        ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
+        : "${widget.conversation.users.firstWhere((element) => element.id == messages[messages.length - 1].userId).username}: ${messages[messages.length - 1].text ?? ''}";
+  }
+
+  String showNameGroup() {
+    return widget.conversation.users
+        .map((e) => e.username)
+        .reduce((value, element) {
+      return "${value.split(" ").last}, ${element.split(" ").last}";
+    });
   }
 }

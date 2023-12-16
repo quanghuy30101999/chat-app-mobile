@@ -43,7 +43,7 @@ class ConversationWidgets {
   }
 
   static _buildBottomSheetContent(BuildContext context) {
-    return NewGroup();
+    return const NewGroup();
   }
 
   static Widget buildSearch({

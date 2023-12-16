@@ -1,3 +1,4 @@
+import 'package:chat_app/screens/channels/channels_widgets.dart';
 import 'package:flutter/material.dart';
 
 class ChannelsPage extends StatefulWidget {
@@ -10,6 +11,18 @@ class ChannelsPage extends StatefulWidget {
 class _ChannelsPageState extends State<ChannelsPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            ChannelsWidgets.buildSafeArea(context),
+            ChannelsWidgets.buildConversationListView(),
+          ],
+        ),
+      ),
+    );
   }
 }

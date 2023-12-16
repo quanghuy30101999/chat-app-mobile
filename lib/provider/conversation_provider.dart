@@ -7,10 +7,12 @@ import 'package:flutter/foundation.dart';
 class ConversationProVider with ChangeNotifier {
   List<Conversation> _conversationsAll = [];
   List<Conversation> _conversations = [];
+  List<Conversation> _groups = [];
   List<Conversation> _users = [];
 
   List<Conversation> get conversations => _conversations;
   List<Conversation> get users => _users;
+  List<Conversation> get groups => _groups;
   List<Conversation> get conversationsAll => _conversationsAll;
 
   Future<void> getConversations(
@@ -24,7 +26,12 @@ class ConversationProVider with ChangeNotifier {
               .where((element) =>
                   element.messages.isNotEmpty && element.isGroup() == false)
               .toList();
-
+          // _users = _conversationsAll
+          //     .where((element) =>
+          //         element.messages.isNotEmpty && element.isGroup() == false)
+          //     .toList();
+          _groups =
+              _conversationsAll.where((element) => element.isGroup()).toList();
           onSuccess?.call(_conversationsAll);
           sortConversations();
           notifyListeners();
@@ -55,7 +62,7 @@ class ConversationProVider with ChangeNotifier {
         Conversation? element =
             _conversationsAll.firstWhere((e) => e.id == conversationId);
         element.messages.add(message);
-        _conversations.add(element);
+        if (!element.isGroup()) _conversations.add(element);
       } catch (e) {
         print(e);
       }
@@ -107,6 +114,28 @@ class ConversationProVider with ChangeNotifier {
           .toList();
     } else {
       _users = [];
+    }
+
+    notifyListeners();
+  }
+
+  void allUser() {
+    _users = _conversationsAll
+        .where((element) => element.isGroup() == false)
+        .toList();
+  }
+
+  void findConversationsByUserName(String text) {
+    if (text != "") {
+      _users = _conversations
+          .where((element) => element.users[0].username
+              .toLowerCase()
+              .contains(text.toLowerCase().trim()))
+          .toList();
+    } else {
+      _users = _conversationsAll
+          .where((element) => element.isGroup() == false)
+          .toList();
     }
 
     notifyListeners();
