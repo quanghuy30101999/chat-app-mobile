@@ -1,3 +1,3 @@
 class ApiService {
-  String baseUrl = 'http://3.112.35.213/api/v1/';
+  String baseUrl = 'https://chatapp24.com/api/v1/';
 }

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class RefreshTokenApi {
-  static const baseUrl = 'http://3.112.35.213/api/v1/';
+  static const baseUrl = 'https://chatapp24.com/api/v1/';
   static const endpoint = 'refresh-token';
 
   static Future<void> refreshToken({
