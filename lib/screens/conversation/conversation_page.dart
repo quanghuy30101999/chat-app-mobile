@@ -1,4 +1,7 @@
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
+import 'package:chat_app/models/message.dart';
+import 'package:chat_app/models/user.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/screens/conversation/conversation_logic.dart';
 import 'package:chat_app/screens/conversation/conversation_widgets.dart';
@@ -23,7 +26,42 @@ class _ConversationPageState extends State<ConversationPage> with RouteAware {
     loadData();
     isFocus = false;
     _logic = ConversationLogic(context: context);
-    _logic.initSocketListeners();
+    initSocketListeners();
+  }
+
+  void initSocketListeners() {
+    SocketManager().listenToEvent('receive_message', (data) {
+      if (mounted) {
+        Message message = Message.fromJson(data);
+        try {
+          Provider.of<ConversationProVider>(context, listen: false)
+              .setLastMessage(
+            conversationId: message.conversationId,
+            message: message,
+          );
+        } catch (e) {
+          print(e);
+        }
+      }
+    });
+
+    SocketManager().listenToEvent('update_online_status', (data) {
+      if (mounted) {
+        Provider.of<ConversationProVider>(context, listen: false)
+            .updateStatusOnline(
+                conversationIds: data['conversationIds'].cast<String>(),
+                userId: data['userId']);
+      }
+    });
+
+    SocketManager().listenToEvent('user_disconnect', (data) {
+      if (mounted) {
+        print('user_disconnect');
+        Provider.of<ConversationProVider>(context, listen: false)
+            .updateUserOffline(
+                data['conversationId'], User.fromJson(data['user']));
+      }
+    });
   }
 
   Future<void> loadData() async {
@@ -49,7 +87,7 @@ class _ConversationPageState extends State<ConversationPage> with RouteAware {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _logic.handleGestureTap(context);
+        _logic.handleGestureTap();
       },
       child: Scaffold(
         backgroundColor: Colors.white,

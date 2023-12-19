@@ -1,3 +1,4 @@
+import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,8 @@ class _NewGroupState extends State<NewGroup> {
   List<Conversation> isSelected = [];
   bool _initialized = false;
   final TextEditingController _textEditingController = TextEditingController();
+  final TextEditingController _nameGroupEditingController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -46,8 +49,9 @@ class _NewGroupState extends State<NewGroup> {
             child: Column(
               children: <Widget>[
                 buildHeader(),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: _nameGroupEditingController,
+                  decoration: const InputDecoration(
                     hintText: 'Tên nhóm (không bắt buộc)',
                     hintStyle: TextStyle(
                       color: Colors.grey,
@@ -70,13 +74,20 @@ class _NewGroupState extends State<NewGroup> {
     );
   }
 
+  void _onClose() {
+    Navigator.pop(context);
+  }
+
   Widget buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Huỷ',
-          style: TextStyle(color: Colors.blue[500], fontSize: 15),
+        GestureDetector(
+          onTap: _onClose,
+          child: Text(
+            'Huỷ',
+            style: TextStyle(color: Colors.blue[500], fontSize: 15),
+          ),
         ),
         const Text(
           'Nhóm mới',
@@ -86,9 +97,31 @@ class _NewGroupState extends State<NewGroup> {
             fontWeight: FontWeight.w700,
           ),
         ),
-        Text('Tạo', style: TextStyle(color: Colors.blue[500], fontSize: 15)),
+        GestureDetector(
+          onTap: _onCreate,
+          child: Text(
+            'Tạo',
+            style: TextStyle(
+                color: isSelected.length >= 2
+                    ? Colors.blue[500]
+                    : Colors.grey[700],
+                fontSize: 15),
+          ),
+        ),
       ],
     );
+  }
+
+  void _onCreate() async {
+    if (isSelected.length >= 2) {
+      var userIds = isSelected.map((e) => e.users[0].id).toList();
+      var loginUser = SharedPreferencesService.readUserData();
+      if (loginUser != null) userIds.add(loginUser.id);
+      await Provider.of<ConversationProVider>(context, listen: false)
+          .createGroup(
+              name: _nameGroupEditingController.text, userIds: userIds);
+      _onClose();
+    }
   }
 
   Widget buildSearchField() {
@@ -189,25 +222,12 @@ class _NewGroupState extends State<NewGroup> {
     return InkWell(
       onTap: () {
         setState(() {
-          if (_textEditingController.text == "") {
-            if (isSelectedList[index]) {
-              isSelected.remove(user);
-            } else {
-              isSelected.add(user);
-            }
-            isSelectedList[index] = !isSelectedList[index];
+          if (isSelectedList[index]) {
+            isSelected.remove(user);
           } else {
             isSelected.add(user);
-            _textEditingController.clear();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Provider.of<ConversationProVider>(context, listen: false)
-                  .findConversationsByUserName('');
-              int indexOfUser = myModel.users.indexOf(user);
-              setState(() {
-                isSelectedList[indexOfUser] = true;
-              });
-            });
           }
+          isSelectedList[index] = !isSelectedList[index];
         });
       },
       child: Padding(

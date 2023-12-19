@@ -26,25 +26,50 @@ class ConversationProVider with ChangeNotifier {
               .where((element) =>
                   element.messages.isNotEmpty && element.isGroup() == false)
               .toList();
-          // _users = _conversationsAll
-          //     .where((element) =>
-          //         element.messages.isNotEmpty && element.isGroup() == false)
-          //     .toList();
           _groups =
               _conversationsAll.where((element) => element.isGroup()).toList();
           onSuccess?.call(_conversationsAll);
           sortConversations();
+          sortGroup();
           notifyListeners();
         },
         onError: (message) => onError?.call(message));
   }
 
-  void sortConversations() {
-    _conversations.sort(
-        (a, b) => lastMessage(b).createdAt.compareTo(lastMessage(a).createdAt));
+  Future<void> createGroup({
+    required String name,
+    required List<String> userIds,
+  }) async {
+    ConversationApi conversationApi = ConversationApi();
+    var conversation =
+        await conversationApi.createGroup(name: name, userIds: userIds);
+    if (conversation != null) {
+      _groups.add(conversation);
+      sortGroup();
+      notifyListeners();
+    }
   }
 
-  Message lastMessage(Conversation conversation) {
+  void sortConversations() {
+    _conversations.sort((a, b) =>
+        lastMessage(b)!.createdAt.compareTo(lastMessage(a)!.createdAt));
+  }
+
+  void sortGroup() {
+    _groups.sort((a, b) {
+      if (lastMessage(b) == null && lastMessage(a) == null) {
+        return 0;
+      } else if (lastMessage(a) == null) {
+        return 1;
+      } else if (lastMessage(b) == null) {
+        return -1;
+      }
+      return lastMessage(b)!.createdAt.compareTo(lastMessage(a)!.createdAt);
+    });
+  }
+
+  Message? lastMessage(Conversation conversation) {
+    if (conversation.messages.isEmpty) return null;
     return conversation.messages[conversation.messages.length - 1];
   }
 
@@ -63,6 +88,7 @@ class ConversationProVider with ChangeNotifier {
             _conversationsAll.firstWhere((e) => e.id == conversationId);
         element.messages.add(message);
         if (!element.isGroup()) _conversations.add(element);
+        sortGroup();
       } catch (e) {
         print(e);
       }
@@ -78,6 +104,17 @@ class ConversationProVider with ChangeNotifier {
         User? user;
         try {
           user = conversation.users.firstWhere((user) => user.id == userId);
+        } catch (e) {
+          user = null;
+        }
+        if (user != null) user.isOnline = true;
+      }
+    }
+    for (var group in _groups) {
+      if (conversationIds.contains(group.id)) {
+        User? user;
+        try {
+          user = group.users.firstWhere((user) => user.id == userId);
         } catch (e) {
           user = null;
         }
@@ -101,8 +138,26 @@ class ConversationProVider with ChangeNotifier {
         print('User not found in conversation users list');
       }
     } else {
-      print('Conversation not found');
+      int i = _groups.indexWhere((element) => element.id == conversationId);
+      if (i != -1) {
+        int indexUser =
+            _groups[i].users.indexWhere((element) => element.id == user.id);
+        if (indexUser != -1) {
+          _groups[i].users[indexUser] = user;
+          notifyListeners();
+        } else {
+          print('User not found in group list');
+        }
+      }
     }
+  }
+
+  void clearData() {
+    _conversationsAll = [];
+    _conversations = [];
+    _users = [];
+    _groups = [];
+    notifyListeners();
   }
 
   void getUsers({String? text}) {
@@ -123,21 +178,5 @@ class ConversationProVider with ChangeNotifier {
     _users = _conversationsAll
         .where((element) => element.isGroup() == false)
         .toList();
-  }
-
-  void findConversationsByUserName(String text) {
-    if (text != "") {
-      _users = _conversations
-          .where((element) => element.users[0].username
-              .toLowerCase()
-              .contains(text.toLowerCase().trim()))
-          .toList();
-    } else {
-      _users = _conversationsAll
-          .where((element) => element.isGroup() == false)
-          .toList();
-    }
-
-    notifyListeners();
   }
 }

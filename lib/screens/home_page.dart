@@ -4,6 +4,7 @@ import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/screens/channels/channels_page.dart';
 import 'package:chat_app/screens/conversation/conversation_page.dart';
+import 'package:chat_app/screens/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         onSuccess: createRoom,
       ),
       const ChannelsPage(),
-      const ChannelsPage()
+      const ProfilePage()
     ];
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -61,7 +62,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     SocketManager().connectToServer();
   }
 
-  void createRoom(List<Conversation> conversations) {
+  void createRoom(List<Conversation> conversations) async {
     if (conversations.isNotEmpty) {
       List<String> convesationIds = conversations.map((e) => e.id).toList();
       Map<String, dynamic> data = {

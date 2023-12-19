@@ -59,7 +59,7 @@ class _ConversationAppBarState extends State<ConversationAppBar> {
                       ? UserInfoDisplay(
                           user: widget.conversation.users[0],
                         )
-                      : UsersInfoDisplay(users: widget.conversation.users)),
+                      : UsersInfoDisplay(conversation: widget.conversation)),
               const Icon(
                 Icons.settings,
                 color: Colors.black54,

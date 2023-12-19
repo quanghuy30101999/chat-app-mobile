@@ -1,13 +1,16 @@
-import 'package:chat_app/models/user.dart';
+import 'package:chat_app/models/conversation.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class UsersInfoDisplay extends StatelessWidget {
-  List<User> users;
-  UsersInfoDisplay({super.key, required this.users});
+  Conversation conversation;
+  UsersInfoDisplay({super.key, required this.conversation});
 
   String showNameGroup() {
-    return users.map((e) => e.username).reduce((value, element) {
+    if (conversation.isGroup() && conversation.name != null) {
+      return conversation.name!;
+    }
+    return conversation.users.map((e) => e.username).reduce((value, element) {
       return "${value.split(" ").last}, ${element.split(" ").last}";
     });
   }

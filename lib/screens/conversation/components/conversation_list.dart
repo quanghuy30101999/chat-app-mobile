@@ -2,6 +2,7 @@ import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/widgets/avatar.dart';
+import 'package:chat_app/widgets/avatars.dart';
 import 'package:flutter/material.dart';
 import '../../../helpers/date_formats.dart';
 
@@ -25,7 +26,9 @@ class _ConversationListState extends State<ConversationList> {
           Expanded(
             child: Row(
               children: <Widget>[
-                Avatar(user: widget.conversation.users[0], radius: 30),
+                widget.conversation.isGroup()
+                    ? Avatars(users: widget.conversation.users, radius: 30)
+                    : Avatar(user: widget.conversation.users[0], radius: 30),
                 const SizedBox(
                   width: 16,
                 ),
@@ -64,16 +67,21 @@ class _ConversationListState extends State<ConversationList> {
               ],
             ),
           ),
-          Text(
-            DateFormats.formatTime(messages[messages.length - 1].createdAt),
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
-          ),
+          messages.isEmpty
+              ? Container()
+              : Text(
+                  DateFormats.formatTime(
+                      messages[messages.length - 1].createdAt),
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.normal),
+                ),
         ],
       ),
     );
   }
 
   String showLastMessageGroup(List<Message> messages) {
+    if (messages.isEmpty) return '';
     return SharedPreferencesService.readUserData()?.id ==
             messages[messages.length - 1].userId
         ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
@@ -81,6 +89,7 @@ class _ConversationListState extends State<ConversationList> {
   }
 
   String showNameGroup() {
+    if (widget.conversation.name != null) return widget.conversation.name!;
     return widget.conversation.users
         .map((e) => e.username)
         .reduce((value, element) {

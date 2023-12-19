@@ -27,4 +27,31 @@ class ConversationApi extends AuthApiService {
       onError?.call(error.toString());
     }
   }
+
+  Future<Conversation?> createGroup({
+    required String name,
+    required List<String> userIds,
+  }) async {
+    String endpoint = "groups";
+    var dataBody =
+        name == "" ? {"userIds": userIds} : {"userIds": userIds, "name": name};
+    headers?.addAll({
+      'Content-Type': 'application/json; charset=UTF-8',
+    });
+    try {
+      var response = await http.post(Uri.parse(baseUrl + endpoint),
+          headers: headers, body: json.encode(dataBody));
+      if (response.statusCode < 400) {
+        var data = json.decode(response.body)["data"];
+        Conversation conversation = Conversation.fromJson(data);
+        return conversation;
+      } else {
+        print(json.decode(response.body)["error"]["message"]);
+        return null;
+      }
+    } catch (error) {
+      print(error.toString());
+      return null;
+    }
+  }
 }
