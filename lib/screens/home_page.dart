@@ -4,6 +4,7 @@ import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/screens/channels/channels_page.dart';
 import 'package:chat_app/screens/conversation/conversation_page.dart';
+import 'package:chat_app/screens/login/login_page.dart';
 import 'package:chat_app/screens/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     connect();
+    SocketManager().listenToEvent('error', (error) {
+      SharedPreferencesService.clearUserData();
+      if (mounted) {
+        Provider.of<ConversationProVider>(context, listen: false).clearData();
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    });
   }
 
   @override
@@ -41,8 +52,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       await Provider.of<ConversationProVider>(context, listen: false)
           .getConversations(onSuccess: (conversations) {
         if (conversations.isNotEmpty) {
+          String? fcmToken = SharedPreferencesService.getFcmToken();
           List<String> convesationIds = conversations.map((e) => e.id).toList();
           Map<String, dynamic> data = {
+            'fcmToken': fcmToken,
             'conversationIds': convesationIds,
             'userId': SharedPreferencesService.readUserData()?.id
           };
@@ -64,8 +77,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void createRoom(List<Conversation> conversations) async {
     if (conversations.isNotEmpty) {
+      String? fcmToken = SharedPreferencesService.getFcmToken();
       List<String> convesationIds = conversations.map((e) => e.id).toList();
       Map<String, dynamic> data = {
+        'fcmToken': fcmToken,
         'conversationIds': convesationIds,
         'userId': SharedPreferencesService.readUserData()?.id
       };

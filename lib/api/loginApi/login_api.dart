@@ -9,9 +9,12 @@ class LoginApi extends ApiService {
       Function? onSuccess,
       Function(String? message)? onError}) async {
     String endpoint = "login";
+    var body = {
+      "id": userId,
+      "fcm_token": SharedPreferencesService.getFcmToken()
+    };
     try {
-      var response =
-          await http.post(Uri.parse(baseUrl + endpoint), body: {"id": userId});
+      var response = await http.post(Uri.parse(baseUrl + endpoint), body: body);
       if (response.statusCode < 400) {
         var data = json.decode(response.body)["data"];
         await SharedPreferencesService.saveUserData(

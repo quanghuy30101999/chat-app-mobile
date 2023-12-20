@@ -9,6 +9,15 @@ class SharedPreferencesService {
     _preferences = await SharedPreferences.getInstance();
   }
 
+  static Future<void> setFcmToken(String fcmToken) async {
+    await _preferences.setString('fcmToken', fcmToken);
+  }
+
+  static String? getFcmToken() {
+    String? fcmToken = _preferences.getString('fcmToken');
+    return fcmToken;
+  }
+
   static Future<void> saveUserData(
       String token, String refreshToken, String user) async {
     await _preferences.setString('token', token);
