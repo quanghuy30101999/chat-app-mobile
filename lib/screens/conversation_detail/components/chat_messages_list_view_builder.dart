@@ -39,7 +39,7 @@ class _ChatMessagesListViewBuilderState
     return Stack(
       children: <Widget>[
         SizedBox(
-          height: media.height * 0.75,
+          height: media.height * 0.8,
           child: SingleChildScrollView(
             reverse: true,
             controller: _scrollController,

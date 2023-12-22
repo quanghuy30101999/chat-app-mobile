@@ -6,10 +6,9 @@ import 'package:provider/provider.dart';
 // ignore: must_be_immutable
 class ChatMessageInput extends StatefulWidget {
   Conversation conversation;
-  ChatMessageInput({
-    super.key,
-    required this.conversation,
-  });
+  Function()? openListImage;
+  ChatMessageInput(
+      {super.key, required this.conversation, required this.openListImage});
 
   @override
   State<ChatMessageInput> createState() => _ChatMessageInputState();
@@ -81,6 +80,9 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
                     });
                   },
                   child: TextField(
+                    onTapOutside: (event) {
+                      FocusScope.of(context).unfocus();
+                    },
                     maxLines: _isFocused ? null : 1,
                     onChanged: _toggleButtonState,
                     focusNode: _focusNode,
@@ -119,17 +121,20 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
   }
 
   Widget _buildActionIcon(IconData icon) {
-    return Container(
-      height: 30,
-      width: 30,
-      decoration: BoxDecoration(
-        color: Colors.lightBlue,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Icon(
-        icon,
-        color: Colors.white,
-        size: 20,
+    return GestureDetector(
+      onTap: widget.openListImage,
+      child: Container(
+        height: 30,
+        width: 30,
+        decoration: BoxDecoration(
+          color: Colors.lightBlue,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 20,
+        ),
       ),
     );
   }

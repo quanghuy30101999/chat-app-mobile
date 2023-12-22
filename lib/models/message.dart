@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 part 'generated/message.g.dart';
 
@@ -16,16 +17,17 @@ class Message {
   final DateTime createdAt;
   @JsonKey(name: "updated_at")
   final DateTime updatedAt;
+  final AssetEntity? asset;
 
-  Message({
-    required this.id,
-    this.text,
-    this.mediaUrl,
-    required this.userId,
-    required this.conversationId,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  Message(
+      {required this.id,
+      this.text,
+      this.mediaUrl,
+      required this.userId,
+      required this.conversationId,
+      required this.createdAt,
+      required this.updatedAt,
+      this.asset});
 
   factory Message.fromJson(Map<String, dynamic> json) =>
       _$MessageFromJson(json);

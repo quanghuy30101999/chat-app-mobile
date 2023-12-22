@@ -51,10 +51,7 @@ class _ConversationListState extends State<ConversationList> {
                         Text(
                           widget.conversation.isGroup()
                               ? showLastMessageGroup(messages)
-                              : SharedPreferencesService.readUserData()?.id ==
-                                      messages[messages.length - 1].userId
-                                  ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
-                                  : messages[messages.length - 1].text ?? '',
+                              : showLastMessage(messages),
                           style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey.shade600,
@@ -86,6 +83,25 @@ class _ConversationListState extends State<ConversationList> {
             messages[messages.length - 1].userId
         ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
         : "${widget.conversation.users.firstWhere((element) => element.id == messages[messages.length - 1].userId).username}: ${messages[messages.length - 1].text ?? ''}";
+  }
+
+  String showLastMessage(List<Message> messages) {
+    if (SharedPreferencesService.readUserData()?.id ==
+        messages[messages.length - 1].userId) {
+      if (messages[messages.length - 1].asset != null) {
+        return 'Bạn đã gửi 1 ảnh';
+      }
+      return "Bạn: ${messages[messages.length - 1].text ?? ''}";
+    } else {
+      String username = widget.conversation.users
+          .firstWhere(
+              (element) => element.id == messages[messages.length - 1].id)
+          .username;
+      if (messages[messages.length - 1].asset != null) {
+        return "$username đã gửi 1 ảnh";
+      }
+      return messages[messages.length - 1].text ?? '';
+    }
   }
 
   String showNameGroup() {
