@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:uuid/uuid.dart';
 
 part 'generated/message.g.dart';
 
@@ -28,6 +29,18 @@ class Message {
       required this.createdAt,
       required this.updatedAt,
       this.asset});
+
+  static Message createRandomMessage(
+      String userId, String conversationId, AssetEntity asset) {
+    return Message(
+      id: const Uuid().v4(),
+      userId: userId,
+      conversationId: conversationId,
+      asset: asset,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
 
   factory Message.fromJson(Map<String, dynamic> json) =>
       _$MessageFromJson(json);

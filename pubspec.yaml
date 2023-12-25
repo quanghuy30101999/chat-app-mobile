@@ -45,6 +45,9 @@ dependencies:
   firebase_messaging: ^14.7.9
   image_picker: ^1.0.5
   photo_manager: ^3.0.0-dev.5
+  uuid: ^4.2.2
+  cached_network_image: ^3.3.0
+  permission_handler: ^11.1.0
 
 dev_dependencies:
   flutter_test:

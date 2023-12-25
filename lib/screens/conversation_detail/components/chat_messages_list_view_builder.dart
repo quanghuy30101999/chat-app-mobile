@@ -2,9 +2,9 @@ import 'package:chat_app/models/message.dart';
 import 'package:chat_app/screens/conversation_detail/components/message_detail.dart';
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class ChatMessagesListViewBuilder extends StatefulWidget {
-  List<Message> messages;
+  final List<Message> messages;
+
   ChatMessagesListViewBuilder({super.key, required this.messages});
 
   @override
@@ -17,49 +17,26 @@ class _ChatMessagesListViewBuilderState
   final ScrollController _scrollController = ScrollController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  // void _scroll({double position = 0.0}) {
-  //   _scrollController.animateTo(
-  //       _scrollController.position.minScrollExtent + position,
-  //       duration: const Duration(microseconds: 300),
-  //       curve: Curves.bounceInOut);
-  // }
-
-  @override
   void dispose() {
+    // TODO: implement dispose
     super.dispose();
+    _scrollController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Size media = MediaQuery.of(context).size;
-    return Stack(
-      children: <Widget>[
-        SizedBox(
-          height: media.height * 0.8,
-          child: SingleChildScrollView(
-            reverse: true,
-            controller: _scrollController,
-            physics: const ScrollPhysics(),
-            child: Column(
-              children: [
-                ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: widget.messages.length,
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  itemBuilder: (context, index) {
-                    return MessageDetail(message: widget.messages[index]);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return SingleChildScrollView(
+      controller: _scrollController,
+      reverse: true,
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        controller: _scrollController,
+        itemCount: widget.messages.length,
+        itemBuilder: (context, index) {
+          return MessageDetail(message: widget.messages[index]);
+        },
+      ),
     );
   }
 }

@@ -4,9 +4,12 @@ import 'package:chat_app/models/message.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
 import 'package:chat_app/provider/message_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:typed_data';
 import 'package:provider/provider.dart';
+
+import '../../../helpers/event_bus.dart';
 
 // ignore: must_be_immutable
 class ImageListScreen extends StatefulWidget {
@@ -28,18 +31,42 @@ class _ImageListScreenState extends State<ImageListScreen> {
     _fetchImages();
   }
 
-  void _onImageSelected(AssetEntity image) async {
+  Message createMessage(AssetEntity image) {
+    Message randomMessage = Message.createRandomMessage(
+        SharedPreferencesService.readUserData()!.id,
+        widget.conversation.id,
+        image);
+    return randomMessage;
+  }
+
+  Future<Message> xxx(AssetEntity image) async {
+    Message oldMessage = createMessage(image);
     Provider.of<ConversationProVider>(context, listen: false).setLastMessage(
-        conversationId: widget.conversation.id,
-        message: Message(
-            id: "id",
-            userId: SharedPreferencesService.readUserData()!.id,
-            conversationId: widget.conversation.id,
-            asset: image,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now()));
+        conversationId: widget.conversation.id, message: oldMessage);
     // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
     Provider.of<MessageProvider>(context, listen: false).notifyListeners();
+    return oldMessage;
+  }
+
+  void _onImageSelected(AssetEntity image) async {
+    Message oldMessage = await xxx(image);
+    Provider.of<MessageProvider>(context, listen: false).sendImage(
+      conversationId: widget.conversation.id,
+      imagePath: await image.file,
+      onSuccess: (newMessage) {
+        var data = {
+          "conversationId": widget.conversation.id,
+          "oldMessage": oldMessage
+        };
+        EventBus().emit('eventName', data);
+      },
+      onError: () {},
+    );
+  }
+
+  Future<bool> requestPermission() async {
+    PermissionStatus status = await Permission.photos.request();
+    return status.isGranted;
   }
 
   Future<void> _fetchImages() async {

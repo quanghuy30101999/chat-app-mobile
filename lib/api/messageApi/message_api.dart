@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_app/api/%1CauthApi/auth_api.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:http/http.dart' as http;
@@ -25,25 +27,43 @@ class MessageApi extends AuthApiService {
     }
   }
 
-  Future<void> postMessage(
+  Future<Message?> postMessage(
       {required String conversationId,
-      required String text,
+      String? text,
+      File? imagePath,
       Function(Message)? onSuccess,
       Function(String? message)? onError}) async {
     String endpoint = "conversations/$conversationId/messages";
-    try {
-      var response = await http.post(Uri.parse(baseUrl + endpoint),
-          headers: headers, body: {'text': text});
-      if (response.statusCode < 400) {
-        var data = json.decode(response.body)["data"];
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse(baseUrl + endpoint),
+    );
+    if (headers != null && headers!['Authorization'] != null) {
+      request.headers['Authorization'] = headers!['Authorization']!;
+    }
 
-        Message message = Message.fromJson(data);
-        onSuccess?.call(message);
+    if (text != null) {
+      request.fields['text'] = text;
+    }
+    if (imagePath != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('media_url', imagePath.path),
+      );
+    }
+
+    try {
+      var response = await request.send();
+      if (response.statusCode < 400) {
+        var responseBody = await response.stream.bytesToString();
+        Message message = Message.fromJson(json.decode(responseBody)['data']);
+        // onSuccess?.call(message);
+        return message;
       } else {
-        onError?.call(json.decode(response.body)["error"]["message"]);
+        print('Request failed with status: ${response.statusCode}');
       }
     } catch (error) {
-      onError?.call(error.toString());
+      rethrow;
     }
+    return null;
   }
 }

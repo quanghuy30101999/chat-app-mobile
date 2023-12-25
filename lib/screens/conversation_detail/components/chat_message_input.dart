@@ -1,4 +1,5 @@
 import 'package:chat_app/models/conversation.dart';
+import 'package:chat_app/provider/loading_provider.dart';
 import 'package:chat_app/provider/message_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,15 +7,15 @@ import 'package:provider/provider.dart';
 // ignore: must_be_immutable
 class ChatMessageInput extends StatefulWidget {
   Conversation conversation;
-  Function()? openListImage;
+  Function onTapOutSide;
   ChatMessageInput(
-      {super.key, required this.conversation, required this.openListImage});
+      {super.key, required this.conversation, required this.onTapOutSide});
 
   @override
-  State<ChatMessageInput> createState() => _ChatMessageInputState();
+  State<ChatMessageInput> createState() => ChatMessageInputState();
 }
 
-class _ChatMessageInputState extends State<ChatMessageInput> {
+class ChatMessageInputState extends State<ChatMessageInput> {
   bool isButtonEnabled = false;
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -25,6 +26,16 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
     setState(() {
       isButtonEnabled = text.trim().isNotEmpty;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _focusNode.dispose();
+  }
+
+  void unfocusTextField() {
+    _focusNode.unfocus();
   }
 
   void sendMessage() async {
@@ -43,7 +54,7 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
     await context.read<MessageProvider>().postMessage(
         conversationId: widget.conversation.id,
         text: messageText,
-        onSuccess: () {
+        onSuccess: (_) {
           clearTextFieldAndDisableButton();
         });
   }
@@ -75,14 +86,12 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
               child: IntrinsicHeight(
                 child: Focus(
                   onFocusChange: (hasFocus) {
+                    if (hasFocus) widget.onTapOutSide.call();
                     setState(() {
                       _isFocused = hasFocus;
                     });
                   },
                   child: TextField(
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                    },
                     maxLines: _isFocused ? null : 1,
                     onChanged: _toggleButtonState,
                     focusNode: _focusNode,
@@ -105,7 +114,7 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
             ),
             const SizedBox(width: 15),
             FloatingActionButton(
-              onPressed: isButtonEnabled ? sendMessage : null,
+              onPressed: isButtonEnabled ? sendMessage : () {},
               backgroundColor: isButtonEnabled ? Colors.blue : Colors.grey,
               elevation: 0,
               child: const Icon(
@@ -122,7 +131,11 @@ class _ChatMessageInputState extends State<ChatMessageInput> {
 
   Widget _buildActionIcon(IconData icon) {
     return GestureDetector(
-      onTap: widget.openListImage,
+      onTap: () {
+        _focusNode.unfocus();
+        Provider.of<LoadingProvider>(context, listen: false)
+            .setOpenListImage(true);
+      },
       child: Container(
         height: 30,
         width: 30,

@@ -36,6 +36,16 @@ class ConversationProVider with ChangeNotifier {
         onError: (message) => onError?.call(message));
   }
 
+  void updateMessage(String conversationId, Message oldMessage) {
+    Conversation a;
+    try {
+      a = _conversations.firstWhere((element) => element.id == conversationId);
+    } catch (e) {
+      a = _groups.firstWhere((element) => element.id == conversationId);
+    }
+    a.messages.removeWhere((element) => element.id == oldMessage.id);
+  }
+
   Future<void> createGroup({
     required String name,
     required List<String> userIds,

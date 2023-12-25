@@ -1,5 +1,6 @@
 import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
+import 'package:chat_app/provider/loading_provider.dart';
 import 'package:chat_app/provider/message_provider.dart';
 import 'package:chat_app/screens/conversation_detail/app_bar/conversation_app_bar.dart';
 import 'package:chat_app/screens/conversation_detail/components/chat_message_input.dart';
@@ -14,13 +15,13 @@ class ChatDetailPage extends StatefulWidget {
   ChatDetailPage({super.key, required this.conversation});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _ChatDetailPageState createState() => _ChatDetailPageState();
+  ChatDetailPageState createState() => ChatDetailPageState();
 }
 
-class _ChatDetailPageState extends State<ChatDetailPage> {
+class ChatDetailPageState extends State<ChatDetailPage> {
+  final GlobalKey<ChatMessageInputState> key =
+      GlobalKey<ChatMessageInputState>();
   bool _isPageOpened = false;
-  bool _isOpenListImage = false;
 
   @override
   void initState() {
@@ -40,52 +41,60 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      // onTap: () {
-      //   // FocusScope.of(context).unfocus();
-      //   if (_isOpenListImage) {
-      //     // setState(() {
-      //     //   _isOpenListImage = false;
-      //     // });
-      //   }
-      // },
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        appBar: ConversationAppBar(
-          conversation: widget.conversation,
-          isPageOpened: _isPageOpened,
-        ),
-        body: Column(
-          children: [
-            Consumer<MessageProvider>(builder: (context, myProvider, child) {
-              if (_isPageOpened) {
-                return Expanded(
-                    child: ChatMessagesListViewBuilder(
-                        messages: widget.conversation.messages));
-              }
-              return Container();
-            }),
-            ChatMessageInput(
-              conversation: widget.conversation,
-              openListImage: _openImages,
-            ),
-            if (_isOpenListImage)
-              Expanded(
-                child: ImageListScreen(
-                  conversation: widget.conversation,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+  void onTapOutSide() {
+    Provider.of<LoadingProvider>(context, listen: false)
+        .setOpenListImage(false);
   }
 
-  void _openImages() {
-    setState(() {
-      _isOpenListImage = true;
-    });
+  void onTap() {
+    key.currentState?.unfocusTextField();
+    if (mounted) {
+      Provider.of<LoadingProvider>(context, listen: false)
+          .setOpenListImage(false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: ConversationAppBar(
+        conversation: widget.conversation,
+        isPageOpened: _isPageOpened,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Consumer<MessageProvider>(
+                  builder: (context, myProvider, child) {
+                if (_isPageOpened) {
+                  return ChatMessagesListViewBuilder(
+                      messages: widget.conversation.messages);
+                }
+                return Container();
+              }),
+            ),
+          ),
+          ChatMessageInput(
+            key: key,
+            conversation: widget.conversation,
+            onTapOutSide: onTapOutSide,
+          ),
+          Selector<LoadingProvider, bool>(
+            selector: (_, myModel) => myModel.isOpenListImage,
+            builder: (context, value, child) {
+              return value
+                  ? Expanded(
+                      child: ImageListScreen(
+                        conversation: widget.conversation,
+                      ),
+                    )
+                  : Container();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
