@@ -1,3 +1,5 @@
+import 'package:chat_app/helpers/constants.dart';
+
 class ApiService {
-  String baseUrl = 'https://chatapp24.com/api/v1/';
+  String baseUrl = "${Constants.url}/api/v1/";
 }

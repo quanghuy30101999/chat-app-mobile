@@ -1,3 +1,4 @@
+import 'package:chat_app/helpers/constants.dart';
 import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -14,7 +15,7 @@ class SocketManager {
 
   void connectToServer() {
     String token = SharedPreferencesService.readTokenUser() ?? '';
-    _socket = io.io('https://chatapp24.com', <String, dynamic>{
+    _socket = io.io(Constants.url, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
       'query': {'token': token}
