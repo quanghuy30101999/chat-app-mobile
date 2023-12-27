@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:chat_app/api/refresh_token/refresh_token_api.dart';
 import 'package:chat_app/helpers/shared_preferences.dart';
+import 'package:chat_app/helpers/socket_manager.dart';
 
 class TokenManager {
   static Future<void> getAccessToken() async {
@@ -19,6 +20,7 @@ class TokenManager {
       SharedPreferencesService.setRefreshToken(token, refreshToken);
     }, onError: (err) {
       SharedPreferencesService.clearUserData();
+      SocketManager().closeConnection();
     });
   }
 

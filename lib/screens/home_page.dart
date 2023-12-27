@@ -2,6 +2,7 @@ import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
+import 'package:chat_app/provider/loading_provider.dart';
 import 'package:chat_app/screens/channels/channels_page.dart';
 import 'package:chat_app/screens/conversation/conversation_page.dart';
 import 'package:chat_app/screens/login/login_page.dart';
@@ -48,26 +49,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       connect();
-
-      await Provider.of<ConversationProVider>(context, listen: false)
-          .getConversations(onSuccess: (conversations) {
-        if (conversations.isNotEmpty) {
-          String? fcmToken = SharedPreferencesService.getFcmToken();
-          List<String> convesationIds = conversations.map((e) => e.id).toList();
-          Map<String, dynamic> data = {
-            'fcmToken': fcmToken,
-            'conversationIds': convesationIds,
-            'userId': SharedPreferencesService.readUserData()?.id
-          };
-          SocketManager().emitEvent('join_room', data);
-        }
-      });
+      bool isInCameraMode =
+          Provider.of<LoadingProvider>(context, listen: false).isInCameraMode;
+      if (!isInCameraMode) {
+        await Provider.of<ConversationProVider>(context, listen: false)
+            .getConversations(onSuccess: (conversations) {
+          // conversations.length <
+          if (conversations.isNotEmpty) {
+            String? fcmToken = SharedPreferencesService.getFcmToken();
+            List<String> convesationIds =
+                conversations.map((e) => e.id).toList();
+            Map<String, dynamic> data = {
+              'fcmToken': fcmToken,
+              'conversationIds': convesationIds,
+              'userId': SharedPreferencesService.readUserData()?.id
+            };
+            SocketManager().emitEvent('join_room', data);
+          }
+        });
+      }
+      // ignore: use_build_context_synchronously
+      Provider.of<LoadingProvider>(context, listen: false)
+          .setInCameraMode(false);
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    SocketManager().closeConnection();
     super.dispose();
   }
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
@@ -50,6 +52,7 @@ class _ImageListScreenState extends State<ImageListScreen> {
 
   void _onImageSelected(AssetEntity image) async {
     Message oldMessage = await xxx(image);
+    // ignore: use_build_context_synchronously
     Provider.of<MessageProvider>(context, listen: false).sendImage(
       conversationId: widget.conversation.id,
       imagePath: await image.file,
@@ -65,23 +68,35 @@ class _ImageListScreenState extends State<ImageListScreen> {
   }
 
   Future<bool> requestPermission() async {
-    PermissionStatus status = await Permission.photos.request();
-    return status.isGranted;
+    if (Platform.isAndroid) {
+      final status = await Permission.manageExternalStorage.request();
+      if (status.isDenied ||
+          status.isPermanentlyDenied ||
+          status.isRestricted) {
+        throw "Please allow storage permission to upload files";
+      }
+      return status.isGranted;
+    } else {
+      return true;
+    }
   }
 
   Future<void> _fetchImages() async {
-    List<AssetPathEntity> albums = await PhotoManager.getAssetPathList();
-    if (albums.isNotEmpty) {
-      List<AssetEntity> allAssets =
-          await albums[0].getAssetListPaged(page: 0, size: 1000);
+    var status = await requestPermission();
+    if (status) {
+      List<AssetPathEntity> albums = await PhotoManager.getAssetPathList();
+      if (albums.isNotEmpty) {
+        List<AssetEntity> allAssets =
+            await albums[0].getAssetListPaged(page: 0, size: 1000);
 
-      List<AssetEntity> images = allAssets.where((asset) {
-        return asset.type == AssetType.image;
-      }).toList();
+        List<AssetEntity> images = allAssets.where((asset) {
+          return asset.type == AssetType.image;
+        }).toList();
 
-      setState(() {
-        _images = images;
-      });
+        setState(() {
+          _images = images;
+        });
+      }
     }
   }
 
@@ -99,7 +114,7 @@ class _ImageListScreenState extends State<ImageListScreen> {
           return InkWell(
             onTap: () => _onImageSelected(_images[index]),
             child: FutureBuilder<Uint8List?>(
-              future: _images[index].originBytes,
+              future: _images[index].thumbnailData,
               builder:
                   (BuildContext context, AsyncSnapshot<Uint8List?> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done &&

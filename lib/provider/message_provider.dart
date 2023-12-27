@@ -47,6 +47,7 @@ class MessageProvider with ChangeNotifier {
         .then((message) {
       if (message != null) {
         onSuccess?.call(message);
+        notifyListeners();
       }
     });
   }

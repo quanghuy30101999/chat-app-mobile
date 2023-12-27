@@ -55,24 +55,31 @@ class MessageDetail extends StatelessWidget {
 
   Widget image(BuildContext context) {
     if (message.mediaUrl != null) {
-      return SizedBox(
-          height: 400,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: CachedNetworkImage(
-              imageUrl: message.mediaUrl!,
-              fit: BoxFit.cover,
-              placeholder: (context, url) =>
-                  const CircularProgressIndicator(color: Colors.transparent),
-              // errorWidget: (context, url, error) => const Icon(Icons.error),
-            ),
-          ));
+      return Container(
+        constraints: const BoxConstraints(
+          maxHeight: 400.0,
+          maxWidth: 300.0,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: CachedNetworkImage(
+            imageUrl: message.mediaUrl!,
+            fit: BoxFit.cover,
+            placeholder: (context, url) =>
+                const CircularProgressIndicator(color: Colors.transparent),
+            // errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+        ),
+      );
     }
     if (message.asset != null) {
-      return SizedBox(
-        height: 400,
-        width: MediaQuery.sizeOf(context).width,
-        child: AssetEntityImageScreen(asset: message.asset!),
+      return IntrinsicWidth(
+        child: IntrinsicHeight(
+          child: Container(
+            alignment: Alignment.topRight,
+            child: AssetEntityImageScreen(asset: message.asset!),
+          ),
+        ),
       );
     }
     return const SizedBox(
