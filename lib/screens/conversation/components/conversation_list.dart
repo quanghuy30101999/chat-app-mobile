@@ -1,9 +1,14 @@
 import 'package:chat_app/helpers/shared_preferences.dart';
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
+import 'package:chat_app/provider/conversation_provider.dart';
+import 'package:chat_app/provider/message_provider.dart';
+import 'package:chat_app/screens/conversation/components/typing_indicator.dart';
 import 'package:chat_app/widgets/avatar.dart';
 import 'package:chat_app/widgets/avatars.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../helpers/date_formats.dart';
 
 // ignore: must_be_immutable
@@ -16,6 +21,45 @@ class ConversationList extends StatefulWidget {
 }
 
 class _ConversationListState extends State<ConversationList> {
+  @override
+  void initState() {
+    super.initState();
+    SocketManager().listenToEvent('typing', (data) {
+      var conversationId = data['conversationId'];
+      var userId = data['userId'];
+      if (mounted &&
+          conversationId == widget.conversation.id &&
+          SharedPreferencesService.readUserData()!.id != userId) {
+        Provider.of<ConversationProVider>(context, listen: false)
+            .setLastMessage(
+          conversationId: conversationId,
+          message: Message.createRandomMessage(userId, conversationId, null,
+              isTyping: true,
+              createdAt: widget.conversation
+                  .messages[widget.conversation.messages.length - 1].createdAt,
+              updatedAt: widget.conversation
+                  .messages[widget.conversation.messages.length - 1].updatedAt),
+        );
+        Provider.of<MessageProvider>(context, listen: false)
+            .updateDataFromSocket();
+      }
+    });
+
+    SocketManager().listenToEvent('cancel_typing', (data) {
+      var conversationId = data['conversationId'];
+      if (mounted && conversationId == widget.conversation.id) {
+        final conversationId = data['conversationId'];
+        final userId = data['userId'];
+        if (mounted) {
+          Provider.of<ConversationProVider>(context, listen: false)
+              .deleteMessageTyping(conversationId, userId);
+          Provider.of<MessageProvider>(context, listen: false)
+              .updateDataFromSocket();
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Message> messages = widget.conversation.messages;
@@ -37,6 +81,7 @@ class _ConversationListState extends State<ConversationList> {
                     color: Colors.transparent,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text(
                           widget.conversation.isGroup()
@@ -48,15 +93,7 @@ class _ConversationListState extends State<ConversationList> {
                         const SizedBox(
                           height: 6,
                         ),
-                        Text(
-                          widget.conversation.isGroup()
-                              ? showLastMessageGroup(messages)
-                              : showLastMessage(messages),
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.normal),
-                        ),
+                        checkTyping(widget.conversation.messages),
                       ],
                     ),
                   ),
@@ -75,6 +112,24 @@ class _ConversationListState extends State<ConversationList> {
         ],
       ),
     );
+  }
+
+  Widget checkTyping(List<Message> messages) {
+    if (messages.isEmpty) return Container();
+    if (messages[messages.length - 1].isTyping != null &&
+        messages[messages.length - 1].isTyping!) {
+      return const TypingIndicator();
+    } else {
+      return Text(
+        widget.conversation.isGroup()
+            ? showLastMessageGroup(messages)
+            : showLastMessage(messages),
+        style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.normal),
+      );
+    }
   }
 
   String showLastMessageGroup(List<Message> messages) {

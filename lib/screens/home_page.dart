@@ -54,7 +54,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (!isInCameraMode) {
         await Provider.of<ConversationProVider>(context, listen: false)
             .getConversations(onSuccess: (conversations) {
-          // conversations.length <
           if (conversations.isNotEmpty) {
             String? fcmToken = SharedPreferencesService.getFcmToken();
             List<String> convesationIds =

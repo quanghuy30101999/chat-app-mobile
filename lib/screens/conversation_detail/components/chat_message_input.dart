@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'dart:io';
-
 import 'package:chat_app/helpers/event_bus.dart';
 import 'package:chat_app/helpers/shared_preferences.dart';
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/provider/conversation_provider.dart';
@@ -31,17 +32,52 @@ class ChatMessageInputState extends State<ChatMessageInput> {
   final FocusNode _focusNode = FocusNode();
   bool _isFocused = false;
   double radius = 20;
+  bool _isTyping = false;
+  Timer? typingTimer;
 
   void _toggleButtonState(String text) {
     setState(() {
       isButtonEnabled = text.trim().isNotEmpty;
     });
+    if (!_isTyping) {
+      setState(() {
+        _isTyping = true;
+      });
+      handleTypingEvent('typing');
+    }
+    if (typingTimer != null) {
+      typingTimer!.cancel();
+    }
+
+    typingTimer = Timer(
+      const Duration(minutes: 1),
+      () {
+        if (_isTyping) {
+          setState(() {
+            _isTyping = false;
+          });
+          handleTypingEvent('cancel_typing');
+        }
+      },
+    );
+    if (text.trim().isEmpty) {
+      _isTyping = false;
+      typingTimer?.cancel();
+      handleTypingEvent('cancel_typing');
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
     _focusNode.dispose();
+    typingTimer?.cancel();
+    if (_isTyping) handleTypingEvent('cancel_typing');
+  }
+
+  void handleTypingEvent(String eventType) {
+    final data = {'conversationId': widget.conversation.id};
+    SocketManager().emitEvent(eventType, data);
   }
 
   void unfocusTextField() {
@@ -73,7 +109,9 @@ class ChatMessageInputState extends State<ChatMessageInput> {
     _textEditingController.clear();
     setState(() {
       isButtonEnabled = false;
+      _isTyping = false;
     });
+    handleTypingEvent('cancel_typing');
   }
 
   @override

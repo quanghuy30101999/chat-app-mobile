@@ -19,6 +19,7 @@ class Message {
   @JsonKey(name: "updated_at")
   final DateTime updatedAt;
   final AssetEntity? asset;
+  final bool? isTyping;
 
   Message(
       {required this.id,
@@ -28,17 +29,20 @@ class Message {
       required this.conversationId,
       required this.createdAt,
       required this.updatedAt,
-      this.asset});
+      this.asset,
+      this.isTyping});
 
   static Message createRandomMessage(
-      String userId, String conversationId, AssetEntity asset) {
+      String userId, String conversationId, AssetEntity? asset,
+      {bool isTyping = false, DateTime? createdAt, DateTime? updatedAt}) {
     return Message(
       id: const Uuid().v4(),
       userId: userId,
       conversationId: conversationId,
       asset: asset,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      isTyping: isTyping,
+      createdAt: createdAt ?? DateTime.now(),
+      updatedAt: updatedAt ?? DateTime.now(),
     );
   }
 

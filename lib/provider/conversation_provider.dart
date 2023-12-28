@@ -22,6 +22,9 @@ class ConversationProVider with ChangeNotifier {
     await conversationApi.getConversations(
         onSuccess: (conversations) {
           _conversationsAll = conversations;
+          for (var element in _conversationsAll) {
+            element.messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+          }
           _conversations = _conversationsAll
               .where((element) =>
                   element.messages.isNotEmpty && element.isGroup() == false)
@@ -44,6 +47,20 @@ class ConversationProVider with ChangeNotifier {
       a = _groups.firstWhere((element) => element.id == conversationId);
     }
     a.messages.removeWhere((element) => element.id == oldMessage.id);
+  }
+
+  void deleteMessageTyping(String conversationId, String userId) {
+    Conversation a;
+    try {
+      a = _conversations.firstWhere((element) => element.id == conversationId);
+      sortConversations();
+    } catch (e) {
+      a = _groups.firstWhere((element) => element.id == conversationId);
+    }
+    a.messages.removeWhere((element) => element.isTyping == true);
+    sortConversations();
+    sortGroup();
+    notifyListeners();
   }
 
   Future<void> createGroup({

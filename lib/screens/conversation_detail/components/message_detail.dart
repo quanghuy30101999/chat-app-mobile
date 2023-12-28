@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/message.dart';
+import 'package:chat_app/screens/conversation/components/typing_indicator.dart';
 import 'package:chat_app/screens/conversation_detail/components/asset_entity_image_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -21,16 +22,18 @@ class MessageDetail extends StatelessWidget {
         child: Container(
           decoration: showDecoration(),
           padding: padding(),
-          child: Column(
-            children: [
-              if (message.text != null)
-                Text(
-                  message.text ?? '',
-                  style: const TextStyle(fontSize: 15),
+          child: (message.isTyping != null && message.isTyping!)
+              ? const TypingIndicator()
+              : Column(
+                  children: [
+                    if (message.text != null)
+                      Text(
+                        message.text ?? '',
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                    image(context)
+                  ],
                 ),
-              image(context)
-            ],
-          ),
         ),
       ),
     );
