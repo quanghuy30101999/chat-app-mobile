@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat_app/helpers/date_formats.dart';
 import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/screens/conversation/components/typing_indicator.dart';
@@ -6,48 +7,97 @@ import 'package:chat_app/screens/conversation_detail/components/asset_entity_ima
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class MessageDetail extends StatelessWidget {
+class MessageDetail extends StatefulWidget {
   Message message;
   MessageDetail({super.key, required this.message});
 
   @override
+  State<MessageDetail> createState() => _MessageDetailState();
+}
+
+class _MessageDetailState extends State<MessageDetail> {
+  bool isShowTime = false;
+
+  @override
+  void dispose() {
+    super.dispose();
+    isShowTime = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return isShowTime
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(DateFormats.formatDateTime(widget.message.createdAt)),
+                  ],
+                ),
+              ),
+              message(),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 20),
+                child: Text('Đã xem'),
+              )
+            ],
+          )
+        : message();
+  }
+
+  Widget message() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 14),
       child: Align(
-        alignment:
-            (message.userId != SharedPreferencesService.readUserData()!.id
-                ? Alignment.topLeft
-                : Alignment.topRight),
-        child: Container(
-          decoration: showDecoration(),
-          padding: padding(),
-          child: (message.isTyping != null && message.isTyping!)
-              ? const TypingIndicator()
-              : Column(
-                  children: [
-                    if (message.text != null)
-                      Text(
-                        message.text ?? '',
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                    image(context)
-                  ],
-                ),
+        alignment: (widget.message.userId !=
+                SharedPreferencesService.readUserData()!.id
+            ? Alignment.topLeft
+            : Alignment.topRight),
+        child: GestureDetector(
+          onTap: onTapMessage,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            decoration: showDecoration(),
+            padding: padding(),
+            child: (widget.message.isTyping != null && widget.message.isTyping!)
+                ? const TypingIndicator()
+                : Column(
+                    children: [
+                      if (widget.message.text != null)
+                        Text(
+                          widget.message.text ?? '',
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                      image(context)
+                    ],
+                  ),
+          ),
         ),
       ),
     );
   }
 
+  void onTapMessage() {
+    if (widget.message.text != null) {
+      setState(() {
+        isShowTime = !isShowTime;
+      });
+    }
+  }
+
   EdgeInsetsGeometry padding() {
-    if (message.mediaUrl != null || message.asset != null) {
+    if (widget.message.mediaUrl != null || widget.message.asset != null) {
       return const EdgeInsets.symmetric(vertical: 0, horizontal: 0);
     }
     return const EdgeInsets.symmetric(vertical: 10, horizontal: 10);
   }
 
   Decoration? showDecoration() {
-    if (message.mediaUrl != null || message.asset != null) {
+    if (widget.message.mediaUrl != null || widget.message.asset != null) {
       return null;
     }
     return BoxDecoration(
@@ -57,7 +107,7 @@ class MessageDetail extends StatelessWidget {
   }
 
   Widget image(BuildContext context) {
-    if (message.mediaUrl != null) {
+    if (widget.message.mediaUrl != null) {
       return Container(
         constraints: const BoxConstraints(
           maxHeight: 400.0,
@@ -66,21 +116,21 @@ class MessageDetail extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: CachedNetworkImage(
-            imageUrl: message.mediaUrl!,
-            fit: BoxFit.cover,
-            placeholder: (context, url) =>
-                const CircularProgressIndicator(color: Colors.transparent),
+            filterQuality: FilterQuality.low,
+            imageUrl: widget.message.mediaUrl!,
+            fit: BoxFit.fill,
+            placeholder: (context, url) => const CircularProgressIndicator(),
             // errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),
       );
     }
-    if (message.asset != null) {
+    if (widget.message.asset != null) {
       return IntrinsicWidth(
         child: IntrinsicHeight(
           child: Container(
             alignment: Alignment.topRight,
-            child: AssetEntityImageScreen(asset: message.asset!),
+            child: AssetEntityImageScreen(asset: widget.message.asset!),
           ),
         ),
       );
@@ -92,10 +142,10 @@ class MessageDetail extends StatelessWidget {
   }
 
   Color? xxx() {
-    if (message.asset != null || message.mediaUrl != null) {
+    if (widget.message.asset != null || widget.message.mediaUrl != null) {
       return Colors.transparent;
     }
-    if (message.userId != SharedPreferencesService.readUserData()!.id) {
+    if (widget.message.userId != SharedPreferencesService.readUserData()!.id) {
       return Colors.grey.shade200;
     }
     return Colors.blue[200];

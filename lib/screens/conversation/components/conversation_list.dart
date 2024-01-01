@@ -121,6 +121,8 @@ class _ConversationListState extends State<ConversationList> {
       return const TypingIndicator();
     } else {
       return Text(
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
         widget.conversation.isGroup()
             ? showLastMessageGroup(messages)
             : showLastMessage(messages),

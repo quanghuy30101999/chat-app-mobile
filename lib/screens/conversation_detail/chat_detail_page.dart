@@ -18,10 +18,14 @@ class ChatDetailPage extends StatefulWidget {
   ChatDetailPageState createState() => ChatDetailPageState();
 }
 
-class ChatDetailPageState extends State<ChatDetailPage> {
+class ChatDetailPageState extends State<ChatDetailPage>
+    with AutomaticKeepAliveClientMixin {
   final GlobalKey<ChatMessageInputState> key =
       GlobalKey<ChatMessageInputState>();
   bool _isPageOpened = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -56,6 +60,7 @@ class ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: ConversationAppBar(
         conversation: widget.conversation,

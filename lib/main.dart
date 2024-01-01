@@ -11,16 +11,19 @@ import 'package:chat_app/widgets/loading_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  await SharedPreferencesService.init();
-  await TokenManager.getAccessToken();
-  await FirebaseMessagingService.init();
-  runApp(const MyApp());
+void main() {
+  initializeDateFormatting('vi_VN', null).then((_) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    await SharedPreferencesService.init();
+    await TokenManager.getAccessToken();
+    await FirebaseMessagingService.init();
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
