@@ -62,6 +62,24 @@ class _ConversationPageState extends State<ConversationPage> with RouteAware {
                 data['conversationId'], User.fromJson(data['user']));
       }
     });
+
+    SocketManager().listenToEvent('delete_group', (conversationId) {
+      if (mounted) {
+        print('delete group');
+        context
+            .read<ConversationProVider>()
+            .deleteFromSocket(conversationId: conversationId);
+        SocketManager().emitEvent('leaveRoom', conversationId);
+      }
+    });
+
+    SocketManager().listenToEvent('new_group', (conversation) {
+      if (mounted) {
+        var newConversation = Conversation.fromJson(conversation);
+        context.read<ConversationProVider>().addGroup(newConversation);
+        SocketManager().emitEvent('join_group', newConversation.id);
+      }
+    });
   }
 
   Future<void> loadData() async {

@@ -7,12 +7,21 @@ class FirebaseMessagingService {
   static Future<void> init() async {
     try {
       _firebaseMessaging = FirebaseMessaging.instance;
+      await _firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
       String? fcmToken = await _firebaseMessaging.getToken();
       if (fcmToken != null) {
         SharedPreferencesService.setFcmToken(fcmToken);
       }
     } catch (e) {
-      SharedPreferencesService.setFcmToken('fcm_token');
+      print(e);
     }
   }
 }

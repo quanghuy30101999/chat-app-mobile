@@ -54,4 +54,13 @@ class ConversationApi extends AuthApiService {
       return null;
     }
   }
+
+  Future<void> deleteGroup({required String conversationId}) async {
+    try {
+      String endpoint = "/group/$conversationId";
+      await http.delete(Uri.parse(baseUrl + endpoint), headers: headers);
+    } catch (e) {
+      print(e);
+    }
+  }
 }

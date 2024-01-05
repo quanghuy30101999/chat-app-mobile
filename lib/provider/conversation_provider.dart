@@ -1,4 +1,5 @@
 import 'package:chat_app/api/conversationApi/conversation_api.dart';
+import 'package:chat_app/helpers/socket_manager.dart';
 import 'package:chat_app/models/conversation.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
@@ -72,9 +73,26 @@ class ConversationProVider with ChangeNotifier {
         await conversationApi.createGroup(name: name, userIds: userIds);
     if (conversation != null) {
       _groups.add(conversation);
+      SocketManager().emitEvent('join_group', conversation.id);
       sortGroup();
       notifyListeners();
     }
+  }
+
+  void deleteGroup({required String conversationId}) {
+    ConversationApi conversationApi = ConversationApi();
+    conversationApi.deleteGroup(conversationId: conversationId);
+  }
+
+  void deleteFromSocket({required String conversationId}) {
+    _groups.removeWhere((element) => element.id == conversationId);
+    notifyListeners();
+  }
+
+  void addGroup(Conversation conversation) {
+    _groups.add(conversation);
+    sortGroup();
+    notifyListeners();
   }
 
   void sortConversations() {

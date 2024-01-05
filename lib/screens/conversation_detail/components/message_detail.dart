@@ -53,32 +53,77 @@ class _MessageDetailState extends State<MessageDetail> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 14),
       child: Align(
-        alignment: (widget.message.userId !=
-                SharedPreferencesService.readUserData()!.id
-            ? Alignment.topLeft
-            : Alignment.topRight),
+        alignment: getMessageAlignment(),
         child: GestureDetector(
           onTap: onTapMessage,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 300),
-            decoration: showDecoration(),
-            padding: padding(),
-            child: (widget.message.isTyping != null && widget.message.isTyping!)
-                ? const TypingIndicator()
-                : Column(
-                    children: [
-                      if (widget.message.text != null)
-                        Text(
-                          widget.message.text ?? '',
-                          style: const TextStyle(fontSize: 15),
-                        ),
-                      image(context)
-                    ],
-                  ),
+          child: Row(
+            mainAxisAlignment: getMessageMainAxisAlignment(),
+            children: [
+              if (shouldShowFavoriteIcon()) ...[replyIcon()],
+              messageContent(),
+              if (!shouldShowFavoriteIcon()) ...[
+                const SizedBox(
+                  width: 10,
+                ),
+                favoriteIcon()
+              ],
+            ],
           ),
         ),
       ),
     );
+  }
+
+  Alignment getMessageAlignment() {
+    return (widget.message.userId != SharedPreferencesService.readUserData()?.id
+        ? Alignment.topLeft
+        : Alignment.topRight);
+  }
+
+  MainAxisAlignment getMessageMainAxisAlignment() {
+    return (widget.message.userId != SharedPreferencesService.readUserData()?.id
+        ? MainAxisAlignment.start
+        : MainAxisAlignment.end);
+  }
+
+  Widget favoriteIcon() {
+    return const Icon(
+      Icons.forward,
+      size: 20,
+      color: Colors.grey,
+    );
+  }
+
+  Widget replyIcon() {
+    return const Icon(
+      Icons.reply,
+      size: 20,
+      color: Colors.grey,
+    );
+  }
+
+  Widget messageContent() {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 300),
+      decoration: showDecoration(),
+      padding: padding(),
+      child: (widget.message.isTyping != null && widget.message.isTyping!)
+          ? const TypingIndicator()
+          : Column(
+              children: [
+                if (widget.message.text != null)
+                  Text(
+                    widget.message.text ?? '',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                image(context), // Nếu có hàm image() để hiển thị hình ảnh
+              ],
+            ),
+    );
+  }
+
+  bool shouldShowFavoriteIcon() {
+    return widget.message.userId == SharedPreferencesService.readUserData()?.id;
   }
 
   void onTapMessage() {
@@ -87,6 +132,34 @@ class _MessageDetailState extends State<MessageDetail> {
         isShowTime = !isShowTime;
       });
     }
+  }
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Thông báo'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Đây là nội dung của hộp thoại.'),
+                Text('Bạn có thể thêm các widget khác tại đây.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Đóng'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   EdgeInsetsGeometry padding() {

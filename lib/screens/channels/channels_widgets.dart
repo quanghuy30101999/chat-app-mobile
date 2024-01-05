@@ -5,6 +5,7 @@ import 'package:chat_app/screens/conversation_detail/chat_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chat_app/screens/conversation/components/conversation_list.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ChannelsWidgets {
   static Widget buildSafeArea(BuildContext context) {
@@ -33,16 +34,37 @@ class ChannelsWidgets {
           padding: const EdgeInsets.only(top: 16),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            return InkWell(
-              onTap: () {
-                Future.delayed(const Duration(milliseconds: 150), () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return ChatDetailPage(conversation: myModel.groups[index]);
-                  }));
-                });
-              },
-              child: ConversationList(
-                conversation: myModel.groups[index],
+            return Slidable(
+              key: ValueKey(myModel.groups[index].id),
+              endActionPane: ActionPane(
+                motion: const ScrollMotion(),
+                children: [
+                  SlidableAction(
+                    onPressed: (_) {
+                      context.read<ConversationProVider>().deleteGroup(
+                          conversationId: myModel.groups[index].id);
+                    },
+                    flex: 2,
+                    backgroundColor: const Color(0xFFFE4A49),
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete,
+                    label: 'Delete',
+                  ),
+                ],
+              ),
+              child: InkWell(
+                onTap: () {
+                  Future.delayed(const Duration(milliseconds: 150), () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return ChatDetailPage(
+                          conversation: myModel.groups[index]);
+                    }));
+                  });
+                },
+                child: ConversationList(
+                  conversation: myModel.groups[index],
+                ),
               ),
             );
           },
