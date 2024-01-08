@@ -14,8 +14,7 @@ class Avatar extends StatelessWidget {
     return Stack(
       children: [
         CircleAvatar(
-          backgroundImage: NetworkImage(user.avatarUrl ??
-              "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg"),
+          backgroundImage: const AssetImage('assets/images/avatar.png'),
           maxRadius: radius,
         ),
         showStatus(user)

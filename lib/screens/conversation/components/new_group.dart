@@ -175,8 +175,9 @@ class _NewGroupState extends State<NewGroup> {
     return Stack(
       children: [
         const CircleAvatar(
-          backgroundImage: NetworkImage(
-              'https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg'),
+          backgroundImage: AssetImage('assets/images/avatar.png'),
+          // NetworkImage(
+          //     'https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg'),
           radius: 25,
         ),
         Positioned(
@@ -238,9 +239,10 @@ class _NewGroupState extends State<NewGroup> {
             const SizedBox(
               height: 80,
               child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                  'https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg',
-                ),
+                backgroundImage: AssetImage('assets/images/avatar.png'),
+                // NetworkImage(
+                //   'https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg',
+                // ),
                 radius: 25,
               ),
             ),

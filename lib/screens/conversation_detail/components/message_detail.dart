@@ -4,6 +4,7 @@ import 'package:chat_app/helpers/shared_preferences.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/screens/conversation/components/typing_indicator.dart';
 import 'package:chat_app/screens/conversation_detail/components/asset_entity_image_screen.dart';
+import 'package:chat_app/screens/conversation_detail/components/forward_message.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -17,6 +18,11 @@ class MessageDetail extends StatefulWidget {
 
 class _MessageDetailState extends State<MessageDetail> {
   bool isShowTime = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -86,19 +92,41 @@ class _MessageDetailState extends State<MessageDetail> {
         : MainAxisAlignment.end);
   }
 
+  void forwardMessage() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return _buildBottomSheetContent()!; // Hiển thị bottom sheet khi nhấn nút
+      },
+    );
+  }
+
+  Widget? _buildBottomSheetContent() {
+    return ForwardMessage(
+      message: widget.message,
+    );
+  }
+
   Widget favoriteIcon() {
-    return const Icon(
-      Icons.forward,
-      size: 20,
-      color: Colors.grey,
+    return GestureDetector(
+      onTap: forwardMessage,
+      child: const Icon(
+        Icons.forward,
+        size: 30,
+        color: Colors.grey,
+      ),
     );
   }
 
   Widget replyIcon() {
-    return const Icon(
-      Icons.reply,
-      size: 20,
-      color: Colors.grey,
+    return GestureDetector(
+      onTap: forwardMessage,
+      child: const Icon(
+        Icons.reply,
+        size: 30,
+        color: Colors.grey,
+      ),
     );
   }
 
@@ -132,34 +160,6 @@ class _MessageDetailState extends State<MessageDetail> {
         isShowTime = !isShowTime;
       });
     }
-  }
-
-  Future<void> _showMyDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Thông báo'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('Đây là nội dung của hộp thoại.'),
-                Text('Bạn có thể thêm các widget khác tại đây.'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Đóng'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   EdgeInsetsGeometry padding() {

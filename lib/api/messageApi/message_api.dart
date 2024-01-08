@@ -66,4 +66,23 @@ class MessageApi extends AuthApiService {
     }
     return null;
   }
+
+  Future<Message?> forwardMessage({
+    required String conversationId,
+    required String messageId,
+  }) async {
+    try {
+      String endpoint = "conversations/$conversationId/messages/$messageId";
+      var response =
+          await http.post(Uri.parse(baseUrl + endpoint), headers: headers);
+      if (response.statusCode < 400) {
+        dynamic data = json.decode(response.body)["data"];
+        Message message = Message.fromJson(data);
+        return message;
+      }
+    } catch (e) {
+      rethrow;
+    }
+    return null;
+  }
 }

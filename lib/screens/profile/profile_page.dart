@@ -1,33 +1,60 @@
 import 'package:chat_app/helpers/shared_preferences.dart';
-import 'package:chat_app/helpers/socket_manager.dart';
-import 'package:chat_app/provider/conversation_provider.dart';
-import 'package:chat_app/screens/login/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
-
-  @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
-
-class _ProfilePageState extends State<ProfilePage> {
+class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(
-          onPressed: () {
-            SharedPreferencesService.clearUserData();
-            SocketManager().closeConnection();
-            Provider.of<ConversationProVider>(context, listen: false)
-                .clearData();
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginPage()),
-            );
-          },
-          child: const Text('Logout')),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Trang cá nhân'),
+        ),
+        body: ProfileBody(),
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class ProfileBody extends StatelessWidget {
+  var user = SharedPreferencesService.readUserData();
+
+  ProfileBody({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(16.0),
+      children: <Widget>[
+        const SizedBox(height: 20.0),
+        const Center(
+          child: CircleAvatar(
+            radius: 50.0,
+            backgroundImage: AssetImage('assets/images/avatar.png'),
+          ),
+        ),
+        const SizedBox(height: 20.0),
+        Text(
+          user!.username,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 10.0),
+        const ListTile(
+          leading: Icon(Icons.email),
+          title: Text('email@example.com'),
+        ),
+        const ListTile(
+          leading: Icon(Icons.phone),
+          title: Text('+1 123-456-7890'),
+        ),
+        const ListTile(
+          leading: Icon(Icons.location_on),
+          title: Text('New York, USA'),
+        ),
+      ],
     );
   }
 }

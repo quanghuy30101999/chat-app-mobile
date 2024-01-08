@@ -31,6 +31,17 @@ class MessageProvider with ChangeNotifier {
     });
   }
 
+  void forwardMessage(String conversationId, String messageId,
+      {required Function onSuccess}) async {
+    MessageApi messageApi = MessageApi();
+    Message? message = await messageApi.forwardMessage(
+        conversationId: conversationId, messageId: messageId);
+    if (message != null) {
+      onSuccess.call();
+      notifyListeners();
+    }
+  }
+
   void sendImage(
       {required String conversationId,
       String? text,

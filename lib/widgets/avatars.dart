@@ -18,12 +18,13 @@ class Avatars extends StatelessWidget {
           backgroundColor: Colors.white, // Màu nền của hình tròn lớn
         ),
         // Avatar nhỏ 1
-        Positioned(
+        const Positioned(
           left: 20,
           child: CircleAvatar(
             radius: 20, // Đường kính của avatar nhỏ
-            backgroundImage: NetworkImage(users[0].avatarUrl ??
-                "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg"),
+            backgroundImage: AssetImage('assets/images/avatar.png'),
+            //  NetworkImage(users[0].avatarUrl ??
+            //     "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg"),
           ),
         ),
         // Avatar nhỏ 2
@@ -34,9 +35,10 @@ class Avatars extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: const Color(0xff7c94b6),
-              image: DecorationImage(
-                image: NetworkImage(users[1].avatarUrl ??
-                    'https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg'),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/avatar.png'),
+                // NetworkImage(users[1].avatarUrl ??
+                //     'https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg'),
                 fit: BoxFit.cover,
               ),
               borderRadius: const BorderRadius.all(Radius.circular(50.0)),

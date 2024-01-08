@@ -4,6 +4,14 @@ import 'package:uuid/uuid.dart';
 
 part 'generated/message.g.dart';
 
+enum MessageStatus {
+  none,
+  sending,
+  sent,
+  received,
+  viewed,
+}
+
 @JsonSerializable()
 class Message {
   final String id;
@@ -20,17 +28,20 @@ class Message {
   final DateTime updatedAt;
   final AssetEntity? asset;
   final bool? isTyping;
+  // MessageStatus messageStatus;
 
-  Message(
-      {required this.id,
-      this.text,
-      this.mediaUrl,
-      required this.userId,
-      required this.conversationId,
-      required this.createdAt,
-      required this.updatedAt,
-      this.asset,
-      this.isTyping});
+  Message({
+    required this.id,
+    this.text,
+    this.mediaUrl,
+    required this.userId,
+    required this.conversationId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.asset,
+    this.isTyping,
+    // this.messageStatus = MessageStatus.none,
+  });
 
   static Message createRandomMessage(
       String userId, String conversationId, AssetEntity? asset,

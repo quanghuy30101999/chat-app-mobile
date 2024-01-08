@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         onSuccess: createRoom,
       ),
       const ChannelsPage(),
-      const ProfilePage()
+      ProfilePage()
     ];
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -119,15 +119,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.message),
-            label: "Chats",
+            label: "Tin nhắn",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.group_work),
-            label: "Channels",
+            label: "Nhóm",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_box),
-            label: "Profile",
+            label: "Trang cá nhân",
           ),
         ],
       ),

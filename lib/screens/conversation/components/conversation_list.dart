@@ -86,8 +86,7 @@ class _ConversationListState extends State<ConversationList> {
                         Text(
                           widget.conversation.isGroup()
                               ? showNameGroup()
-                              : widget.conversation.name ??
-                                  widget.conversation.users[0].username,
+                              : widget.conversation.users[0].username,
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(
@@ -138,8 +137,8 @@ class _ConversationListState extends State<ConversationList> {
     if (messages.isEmpty) return '';
     return SharedPreferencesService.readUserData()?.id ==
             messages[messages.length - 1].userId
-        ? "Bạn: ${messages[messages.length - 1].text ?? ''}"
-        : "${widget.conversation.users.firstWhere((element) => element.id == messages[messages.length - 1].userId).username}: ${messages[messages.length - 1].text ?? ''}";
+        ? "Bạn: ${messages[messages.length - 1].text ?? 'đã gửi 1 ảnh'}"
+        : "${widget.conversation.users.firstWhere((element) => element.id == messages[messages.length - 1].userId).username}: ${messages[messages.length - 1].text ?? 'đã gửi 1 ảnh'}";
   }
 
   String showLastMessage(List<Message> messages) {

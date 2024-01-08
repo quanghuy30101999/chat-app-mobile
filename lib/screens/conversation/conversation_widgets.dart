@@ -77,7 +77,7 @@ class ConversationWidgets {
                   });
                 },
                 child: UserList(
-                  users: conversations[index].users,
+                  conversation: conversations[index],
                 ),
               );
             },

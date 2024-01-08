@@ -8,8 +8,9 @@ class Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      backgroundImage: NetworkImage(avatarUrl ??
-          "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg"),
+      backgroundImage: AssetImage('assets/images/avatar.png'),
+      //  NetworkImage(avatarUrl ??
+      //     "https://i.pinimg.com/736x/40/0e/b8/400eb8a3081a741b593f12591ac40036.jpg"),
       maxRadius: 20,
     );
   }
